@@ -6,6 +6,32 @@ from google.cloud import datastore
 
 datastore_client = datastore.Client()
 
+
+#########################################################
+# Use this if you want to connect to a local datastore  #
+#
+# You will need to start your emulator with the following
+# command:
+#
+# gcloud beta emulators datastore start --data-dir=. --project test --host-port "localhost:8001"
+#
+#########################################################
+# import os
+# if os.getenv('GAE_ENV', '').startswith('standard'):
+#     # production
+#     datastore_client = datastore.Client()
+# else:
+#     os.environ["DATASTORE_DATASET"] = "test"
+#     os.environ["DATASTORE_EMULATOR_HOST"] = "localhost:8001"
+#     os.environ["DATASTORE_EMULATOR_HOST_PATH"] = "localhost:8001/datastore"
+#     os.environ["DATASTORE_HOST"] = "http://localhost:8001"
+#     os.environ["DATASTORE_PROJECT_ID"] = "test"
+
+#     datastore_client = datastore.Client(
+#         project="test"
+#     )
+############################################################
+
 app = Flask(__name__)
 
 def store_time(dt):
@@ -31,6 +57,7 @@ def root():
 
     # Fetch the most recent 10 access times from Datastore.
     times = fetch_times(10)
+    print('times:', [x['timestamp'].strftime("%d/%m/%y %I:%M%p") for x in times])
 
     return render_template('index.html', times=times)
 
