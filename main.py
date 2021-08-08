@@ -1,11 +1,8 @@
 import datetime
-
-from flask import Flask, render_template
+from flask import Flask, render_template, request, abort
 
 from google.cloud import datastore
-
 datastore_client = datastore.Client()
-
 
 #########################################################
 # Use this if you want to connect to a local datastore  #
@@ -60,6 +57,23 @@ def root():
     print('times:', [x['timestamp'].strftime("%d/%m/%y %I:%M%p") for x in times])
 
     return render_template('index.html', times=times)
+
+@app.route('/tasks/summary')
+def build_market_summary():
+    validate_cron_request(request=request)
+
+    return "Task be done"
+
+def validate_cron_request(request):
+    ''' Reference: https://partner-security.withgoogle.com/docs/appengine_tips.html '''
+    header = request.headers.get('X-AppEngine-Cron', None)
+    if not header:
+        abort(403)
+        # raise ValueError(
+        #     'attempt to access cron handler directly, missing custom App Engine header'
+        # )
+
+    return
 
 
 if __name__ == "__main__":
