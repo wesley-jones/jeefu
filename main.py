@@ -1,8 +1,10 @@
 import datetime
-from flask import Flask, render_template, request, abort
+from flask import Flask, render_template, request
 
 from google.cloud import datastore
-datastore_client = datastore.Client()
+
+from utilities import utility
+
 
 #########################################################
 # Use this if you want to connect to a local datastore  #
@@ -29,51 +31,27 @@ datastore_client = datastore.Client()
 #     )
 ############################################################
 
+datastore_client = datastore.Client()
 app = Flask(__name__)
 
-def store_time(dt):
-    entity = datastore.Entity(key=datastore_client.key('visit'))
-    entity.update({
-        'timestamp': dt
-    })
-
-    datastore_client.put(entity)
-
-def fetch_times(limit):
-    query = datastore_client.query(kind='visit')
-    query.order = ['-timestamp']
-
-    times = query.fetch(limit=limit)
-
-    return times
 
 @app.route('/')
 def root():
     # Store the current access time in Datastore.
-    store_time(datetime.datetime.now())
+    utility.store_time(datastore_client, datetime.datetime.now())
 
     # Fetch the most recent 10 access times from Datastore.
-    times = fetch_times(10)
+    times = utility.fetch_times(datastore_client, 10)
     print('times:', [x['timestamp'].strftime("%d/%m/%y %I:%M%p") for x in times])
 
     return render_template('index.html', times=times)
 
 @app.route('/tasks/summary')
-def build_market_summary():
-    validate_cron_request(request=request)
+def cron_build_market_summary():
+    utility.validate_cron_request(request=request)
 
     return "Task be done"
 
-def validate_cron_request(request):
-    ''' Reference: https://partner-security.withgoogle.com/docs/appengine_tips.html '''
-    header = request.headers.get('X-AppEngine-Cron', None)
-    if not header:
-        abort(403)
-        # raise ValueError(
-        #     'attempt to access cron handler directly, missing custom App Engine header'
-        # )
-
-    return
 
 
 if __name__ == "__main__":
