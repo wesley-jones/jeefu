@@ -20,7 +20,7 @@ steps:
 
   # Deploy to Cloud Run
   - name: google/cloud-sdk
-    args: ['gcloud', 'run', 'deploy', 'helloworld', 
+    args: ['gcloud', 'run', 'deploy', 'default', 
            '--image=us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/myimage:$SHORT_SHA', 
            '--region', 'us-central1', '--platform', 'managed', 
            '--allow-unauthenticated']
