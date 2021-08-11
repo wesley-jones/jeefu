@@ -5,11 +5,11 @@ steps:
     args: ["install", "-r", "requirements.txt", "--user"]
 
   # Run unit tests
-  - name: python
-    entrypoint: python
-    args: ["-m", "pytest", "--junitxml=${SHORT_SHA}_test_log.xml"] 
+  # - name: python
+  #   entrypoint: python
+  #   args: ["-m", "pytest", "--junitxml=${SHORT_SHA}_test_log.xml"] 
 
-    # Docker Build
+  # Docker Build
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/myimage:$SHORT_SHA', '.']
 
