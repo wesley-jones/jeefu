@@ -1,6 +1,7 @@
 from google.cloud import datastore
 import yfinance as yahooFinance
 import datetime
+import pytz
 
 market_day_kind = 'MarketDay'
 
@@ -34,22 +35,26 @@ def run_daily_market_summary_update(datastore_client):
   # Find the last date in the market day entities
   most_recent = get_most_recent_market_day(datastore_client)
 
-  # If its not yesterday, then build all the missing dates up to yesterday.
+  # If its not up-to-date, then build all the missing dates up to yesterday.
   most_recent = list(most_recent)
 
   if most_recent:
     print('most_recent', most_recent[0])
-    start_date = most_recent[0]['Date'].date()
+    most_recent = most_recent[0]['Date'].date()
+    start_date = most_recent + datetime.timedelta(days = 1)
   else:
     print('no market days in datastore')
     start_date = datetime.datetime(2014, 9, 17).date()
 
-  today = datetime.datetime.now().date()
+  timezone = pytz.timezone('America/New_York')
+  today = datetime.datetime.now(timezone).date()
   yesterday = today - datetime.timedelta(days = 1)
 
   print('start date:', start_date)
+  # print('today:', today)
   print('yesterday:', yesterday)
-  if start_date < yesterday:
+
+  if start_date < today:
     btc = yahooFinance.Ticker("BTC-USD")
     history = btc.history(start=start_date, end=yesterday)
     history['Date'] = history.index
