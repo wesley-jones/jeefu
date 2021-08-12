@@ -4,6 +4,7 @@ from flask import Flask, render_template, request
 from google.cloud import datastore
 
 from utilities import utility
+from jobs import marketday
 
 
 #########################################################
@@ -49,8 +50,9 @@ def root():
 @app.route('/tasks/summary')
 def cron_build_market_summary():
     utility.validate_cron_request(request=request)
+    results = marketday.run_daily_market_summary_update(datastore_client)
 
-    return "Task be done"
+    return results
 
 
 
