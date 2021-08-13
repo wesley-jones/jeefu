@@ -10,7 +10,6 @@ def validate_cron_request(request):
 
     return
 
-
 def store_time(datastore_client, dt):
     entity = datastore.Entity(key=datastore_client.key('visit'))
     entity.update({
@@ -19,8 +18,6 @@ def store_time(datastore_client, dt):
 
     datastore_client.put(entity)
 
-
-
 def fetch_times(datastore_client, limit):
     query = datastore_client.query(kind='visit')
     query.order = ['-timestamp']
@@ -28,3 +25,10 @@ def fetch_times(datastore_client, limit):
     times = query.fetch(limit=limit)
 
     return times
+
+def get_most_recent_entity(datastore_client, kind):
+  query = datastore_client.query(kind=kind)
+  query.order = ['-Date']
+  most_recent = query.fetch(limit=1)
+
+  return most_recent

@@ -1,4 +1,4 @@
 cron:
 - description: "daily market summary job"
   url: /tasks/summary
-  schedule: every 15 min
+  schedule: every 15 mins

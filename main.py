@@ -5,6 +5,7 @@ from google.cloud import datastore
 
 from utilities import utility
 from jobs import marketday
+from models import model
 
 
 #########################################################
@@ -50,7 +51,17 @@ def root():
 @app.route('/tasks/summary')
 def cron_build_market_summary():
     utility.validate_cron_request(request=request)
+    print('Starting Cron for Daily Market Summary')
     results = marketday.run_daily_market_summary_update(datastore_client)
+
+    return results
+
+@app.route('/tasks/models/daily_update')
+def cron_run_daily_model_updates():
+    utility.validate_cron_request(request=request)
+    print('Starting Cron for Daily Model Updates')
+
+    results = model.run_daily_model_updates(datastore_client)
 
     return results
 
