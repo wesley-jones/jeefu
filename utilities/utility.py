@@ -39,8 +39,11 @@ def get_most_recent_entity(datastore_client, kind):
   return most_recent
 
 def get_entities_starting_from(datastore_client, kind, start_date):
+
+    if isinstance(start_date, datetime.date):
+        start_date = cast_date_to_datetime(start_date)
     query = datastore_client.query(kind=kind)
-    query.order = [constants.QUERY_ORDER_DATE_DESCENDING]
+    query.order = [constants.QUERY_ORDER_DATE_ASCENDING]
     query.add_filter(constants.DATE, '>=', start_date)
     results = query.fetch()
 
@@ -80,3 +83,6 @@ def save_to_datastore(datastore_client, kind, dictionaries):
         batch = entities[i:i+batchsize]
         datastore_client.put_multi(batch)
 
+def cast_date_to_datetime(your_date):
+    new_datetime = datetime.datetime.combine(your_date, datetime.datetime.min.time())
+    return new_datetime

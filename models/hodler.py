@@ -14,9 +14,14 @@ def get_recommendations(datastore_client, start_date):
     one_day = datetime.timedelta(days = 1)
 
     while loop_date < utility.get_today():
+        if loop_date == constants.HISTORICAL_START_DATE:
+            recommendation = constants.BUY
+        else:
+            recommendation = constants.HOLD
+
         dictionary = {
             constants.DATE: loop_date,
-            constants.RECOMMENDATION: 'Hold'
+            constants.RECOMMENDATION: recommendation
         }
         recommendations.append(dictionary)
         loop_date += one_day
