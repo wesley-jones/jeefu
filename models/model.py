@@ -60,7 +60,7 @@ def run_daily_model_updates(datastore_client):
             dictionaries = calculate_daily_metrics(datastore_client, start_date, model, recommendations)
 
             # Save to google datastore
-            # utility.save_to_datastore(datastore_client, model.kind, recommendations)
+            utility.save_to_datastore(datastore_client, model.kind, dictionaries)
 
         else:
             print(model.kind, 'is up-to-date!')
@@ -92,21 +92,10 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
 
     market_days = utility.get_entities_starting_from(datastore_client, marketday.kind, start_date)
 
-    print('type:', type(market_days))
-
-    if market_days:
-        print('there are market days')
-    else:
-        print('No market days')
-
     dictionaries = []
     one_day = 1
-    one_bitcoin = 1
 
     for recommendation in recommendations:
-
-        # Ensure the recommendation date matches the marketday date
-        print('recommendation date:', recommendation[constants.DATE])
 
         try:
             market_day = next(market_days)
@@ -114,9 +103,6 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
             print('Mismatch with market days and recommendations for', model.kind)
             return dictionaries
 
-        print('market_day:', market_day)
-        print('rec date:', recommendation[constants.DATE])
-        print('market date:', market_day[constants.DATE].date())
         if recommendation[constants.DATE] != market_day[constants.DATE].date():
             print('Mismatch with dates of market days and recommendations for', model.kind)
             return dictionaries
@@ -145,6 +131,7 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
                 rate_of_return = utility.get_rate_of_return(previous_transaction_close_price, close_price)
                 list_returns_per_buy.append(rate_of_return)
             log_transaction(
+                model = model,
                 date = recommendation[constants.DATE],
                 transaction_type = constants.BUY,
                 rate_of_return = rate_of_return,
@@ -170,6 +157,7 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
                 list_returns_per_sell.append(rate_of_return)
 
             log_transaction(
+                model = model,
                 date=recommendation[constants.DATE],
                 transaction_type=constants.SELL,
                 rate_of_return=rate_of_return,
@@ -195,7 +183,6 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
                 consecutive_days_holding_btc += 1
 
         final_balance_in_cash = cash_balance + utility.convert_btc_to_cash(btc_balance, close_price)
-        final_balance_in_btc = btc_balance + utility.convert_cash_to_btc(cash_balance, close_price)
 
         dictionary = {
             constants.DATE: utility.cast_date_to_datetime(recommendation[constants.DATE]),
@@ -210,7 +197,6 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
             constants.AVG_RETURN_ON_BUYS: get_average_from_list(list_returns_per_buy),
             constants.AVG_RETURN_ON_SELLS: get_average_from_list(list_returns_per_sell),
             constants.NET_PROFIT_IN_CASH: final_balance_in_cash - constants.HISTORICAL_STARTING_CASH_BALANCE,
-            constants.NET_PROFIT_IN_BTC: final_balance_in_btc - one_bitcoin,
             constants.AVG_RETURN_PER_TRANSACTION: get_average_from_list(list_returns_per_buy + list_returns_per_sell),
             constants.TOTAL_RETURN: utility.get_rate_of_return(final_balance_in_cash, constants.HISTORICAL_STARTING_CASH_BALANCE),
             constants.PREVIOUS_TRANSACTION_CLOSE_PRICE: previous_transaction_close_price,
@@ -222,6 +208,9 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
             constants.LIST_RETURNS_PER_SELL: list_returns_per_sell,
         }
 
+        if recommendation[constants.DATE] > datetime.datetime(2021, 8, 11).date():
+            print(dictionary)
+
         dictionaries.append(dictionary)
         previous_day_model = dictionary
         
@@ -229,8 +218,11 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
 
 
 
-def log_transaction(date, transaction_type, rate_of_return, btc_amount, cash_amount, close_price):
+def log_transaction(model, date, transaction_type, rate_of_return, btc_amount, cash_amount, close_price):
     print(
+        'Transaction for',
+        model.kind,
+        '|',
         date,
         '|',
         transaction_type,
@@ -258,7 +250,6 @@ def populate_default_model():
         constants.AVG_RETURN_ON_BUYS: 0,
         constants.AVG_RETURN_ON_SELLS: 0,
         constants.NET_PROFIT_IN_CASH: 0,
-        constants.NET_PROFIT_IN_BTC: 0,
         constants.AVG_RETURN_PER_TRANSACTION: 0,
         constants.TOTAL_RETURN: 0,
         constants.PREVIOUS_TRANSACTION_CLOSE_PRICE: 0,
