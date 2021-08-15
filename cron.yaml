@@ -3,7 +3,6 @@ cron:
   url: /tasks/summary
   schedule: every 15 mins
 
-cron:
 - description: "daily model updates job"
   url: /tasks/models/daily_update
   schedule: every 15 mins
