@@ -15,22 +15,6 @@ def validate_cron_request(request):
 
     return
 
-def store_time(datastore_client, dt):
-    entity = datastore.Entity(key=datastore_client.key('visit'))
-    entity.update({
-        'timestamp': dt
-    })
-
-    datastore_client.put(entity)
-
-def fetch_times(datastore_client, limit):
-    query = datastore_client.query(kind='visit')
-    query.order = ['-timestamp']
-
-    times = query.fetch(limit=limit)
-
-    return times
-
 def get_most_recent_entity(datastore_client, kind):
   query = datastore_client.query(kind=kind)
   query.order = [constants.QUERY_ORDER_DATE_DESCENDING]
@@ -45,6 +29,16 @@ def get_entities_starting_from(datastore_client, kind, start_date):
     query = datastore_client.query(kind=kind)
     query.order = [constants.QUERY_ORDER_DATE_ASCENDING]
     query.add_filter(constants.DATE, '>=', start_date)
+    results = query.fetch()
+
+    return results
+
+def get_entity_by_date(datastore_client, kind, requested_date):
+
+    if isinstance(requested_date, datetime.date):
+        requested_date = cast_date_to_datetime(requested_date)
+    query = datastore_client.query(kind=kind)
+    query.add_filter(constants.DATE, '=', requested_date)
     results = query.fetch()
 
     return results
@@ -67,6 +61,9 @@ def get_yesterday():
     yesterday = get_today() - datetime.timedelta(days = 1)
     return yesterday
 
+def to_date(date_string):
+    return datetime.datetime.strptime(date_string, "%Y-%m-%d").date()
+
 def save_to_datastore(datastore_client, kind, dictionaries):
     # Create your Google datastore entities
     count = len(dictionaries)
@@ -86,3 +83,9 @@ def save_to_datastore(datastore_client, kind, dictionaries):
 def cast_date_to_datetime(your_date):
     new_datetime = datetime.datetime.combine(your_date, datetime.datetime.min.time())
     return new_datetime
+
+# Pass in a datetime and get output like the following: August 15th, 2021
+def custom_strftime(t):
+    format = '%B {S}, %Y'
+    suffix = 'th' if 11<=t.day<=13 else {1:'st',2:'nd',3:'rd'}.get(t.day%10, 'th')
+    return t.strftime(format).replace('{S}', str(t.day) + suffix)

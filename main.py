@@ -6,6 +6,7 @@ from google.cloud import datastore
 from utilities import utility
 from jobs import marketday
 from models import model
+from web import webcontext
 
 
 #########################################################
@@ -39,14 +40,14 @@ app = Flask(__name__)
 
 @app.route('/')
 def root():
-    # Store the current access time in Datastore.
-    utility.store_time(datastore_client, datetime.datetime.now())
+    # Get the web context for the date requested
+    requested_date = request.args.get('date', default = utility.get_yesterday(), type = utility.to_date)
 
-    # Fetch the most recent 10 access times from Datastore.
-    times = utility.fetch_times(datastore_client, 10)
-    print('times:', [x['timestamp'].strftime("%d/%m/%y %I:%M%p") for x in times])
+    print('Web | Requested Date:', requested_date)
 
-    return render_template('index.html', times=times)
+    context = webcontext.build_bot_summary_context_by_day(datastore_client, requested_date)
+
+    return render_template('index.html', context=context)
 
 @app.route('/tasks/summary')
 def cron_build_market_summary():

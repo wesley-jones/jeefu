@@ -216,8 +216,6 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
         
     return dictionaries
 
-
-
 def log_transaction(model, date, transaction_type, rate_of_return, btc_amount, cash_amount, close_price):
     print(
         'Transaction for',
@@ -234,7 +232,6 @@ def log_transaction(model, date, transaction_type, rate_of_return, btc_amount, c
         '|',
         f'Close price: ${close_price:,.0f}'
     )
-
 
 def populate_default_model():
     dictionary = {
