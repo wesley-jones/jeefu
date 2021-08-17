@@ -89,3 +89,9 @@ def custom_strftime(t):
     format = '%B {S}, %Y'
     suffix = 'th' if 11<=t.day<=13 else {1:'st',2:'nd',3:'rd'}.get(t.day%10, 'th')
     return t.strftime(format).replace('{S}', str(t.day) + suffix)
+
+def pluralize(word, length):
+    if length > 1:
+        word = word + 's'
+    
+    return word

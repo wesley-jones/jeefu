@@ -61,8 +61,8 @@ def cron_build_market_summary():
 def cron_run_daily_model_updates():
     utility.validate_cron_request(request=request)
     print('Starting Cron for Daily Model Updates')
-
     results = model.run_daily_model_updates(datastore_client)
+    print('Completed Cron for Daily Model Updates')
 
     return results
 

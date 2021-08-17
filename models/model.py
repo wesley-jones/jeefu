@@ -37,7 +37,6 @@ def run_daily_model_updates(datastore_client):
         most_recent = list(most_recent)
 
         if most_recent:
-            print('most_recent', model.kind + ":", most_recent[0][constants.DATE])
             most_recent = most_recent[0]['Date'].date()
             start_date = most_recent + datetime.timedelta(days = 1)
         else:
@@ -59,6 +58,13 @@ def run_daily_model_updates(datastore_client):
             # Calculate the daily metrics
             dictionaries = calculate_daily_metrics(datastore_client, start_date, model, recommendations)
 
+            print(
+                "Adding",
+                len(dictionaries),
+                utility.pluralize('record', len(dictionaries)),
+                "to",
+                model.kind
+            )
             # Save to google datastore
             utility.save_to_datastore(datastore_client, model.kind, dictionaries)
 
@@ -79,8 +85,16 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
 
     # Previous days already exist for this model
     if most_recent:
-        if most_recent[0].Date != start_date:
-            print("Most recent date doesn't match with recommendations for " + model.kind)
+        most_recent = most_recent[0]
+        if most_recent[constants.DATE].date() != start_date - datetime.timedelta(days = 1):
+            print(
+                "Most recent date",
+                most_recent[constants.DATE].date(),
+                "doesn't match with the day before the first recommendation date",
+                start_date - datetime.timedelta(days = 1),
+                "for",
+                model.kind
+            )
             return []
 
         previous_day_model = most_recent
@@ -103,8 +117,24 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
             print('Mismatch with market days and recommendations for', model.kind)
             return dictionaries
 
-        if recommendation[constants.DATE] != market_day[constants.DATE].date():
-            print('Mismatch with dates of market days and recommendations for', model.kind)
+        verify_previous_model_date = (previous_day_model[constants.DATE] + datetime.timedelta(days = 1)).date()
+        if (
+            recommendation[constants.DATE] != market_day[constants.DATE].date()
+            or verify_previous_model_date != market_day[constants.DATE].date()
+        ):
+            print(
+                'Mismatch with dates for', 
+                model.kind,
+                "\n",
+                "Recommendation:",
+                recommendation[constants.DATE],
+                "\n",
+                "Market day:",
+                market_day[constants.DATE].date(),
+                "\n",
+                "Previous model date:",
+                verify_previous_model_date
+            )
             return dictionaries
 
         # Reset the variables
@@ -130,6 +160,7 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
             if previous_transaction_close_price > 0:
                 rate_of_return = utility.get_rate_of_return(previous_transaction_close_price, close_price)
                 list_returns_per_buy.append(rate_of_return)
+
             log_transaction(
                 model = model,
                 date = recommendation[constants.DATE],
@@ -207,9 +238,6 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
             constants.LIST_RETURNS_PER_BUY: list_returns_per_buy,
             constants.LIST_RETURNS_PER_SELL: list_returns_per_sell,
         }
-
-        if recommendation[constants.DATE] > datetime.datetime(2021, 8, 11).date():
-            print(dictionary)
 
         dictionaries.append(dictionary)
         previous_day_model = dictionary
