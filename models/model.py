@@ -1,6 +1,6 @@
 import datetime
 from utilities import utility, constants
-from models import hodler
+from models import hodler, hindsight
 from jobs import marketday
 
 
@@ -22,7 +22,8 @@ Every model should implement the following functions:
 '''
 
 active_model_list = {
-    hodler
+    hodler,
+    hindsight
 }
 
 def run_daily_model_updates(datastore_client):
@@ -40,7 +41,7 @@ def run_daily_model_updates(datastore_client):
             most_recent = most_recent[0]['Date'].date()
             start_date = most_recent + datetime.timedelta(days = 1)
         else:
-            print('no days in datastore for entity', model.kind)
+            print('No days in datastore for entity', model.kind)
             start_date = datetime.datetime(2014, 9, 17).date()
 
         today = utility.get_today()
@@ -221,10 +222,10 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
             constants.RECOMMENDATION: recommendation_value,
             constants.CASH_BALANCE: cash_balance,
             constants.BTC_BALANCE: btc_balance,
-            constants.AVG_DAYS_HOLDING_BTC: utility.calculate_average_from_list(list_consecutive_days_holding_btc),
-            constants.AVG_DAYS_HOLDING_CASH: utility.calculate_average_from_list(list_consecutive_days_holding_cash),
-            constants.TOTAL_DAYS_HOLDING_CASH: sum(list_consecutive_days_holding_cash),
-            constants.TOTAL_DAYS_HOLDING_BTC: sum(list_consecutive_days_holding_btc),
+            # constants.AVG_DAYS_HOLDING_BTC: utility.calculate_average_from_list(list_consecutive_days_holding_btc),
+            # constants.AVG_DAYS_HOLDING_CASH: utility.calculate_average_from_list(list_consecutive_days_holding_cash),
+            # constants.TOTAL_DAYS_HOLDING_CASH: sum(list_consecutive_days_holding_cash),
+            # constants.TOTAL_DAYS_HOLDING_BTC: sum(list_consecutive_days_holding_btc),
             constants.AVG_RETURN_ON_BUYS: utility.calculate_average_from_list(list_returns_per_buy),
             constants.AVG_RETURN_ON_SELLS: utility.calculate_average_from_list(list_returns_per_sell),
             constants.NET_PROFIT_IN_CASH: final_balance_in_cash - constants.HISTORICAL_STARTING_CASH_BALANCE,
@@ -263,7 +264,7 @@ def log_transaction(model, date, transaction_type, rate_of_return, btc_amount, c
 
 def populate_default_model():
     dictionary = {
-        constants.DATE: constants.HISTORICAL_START_DATE - datetime.timedelta(days = 1),
+        constants.DATE: utility.cast_date_to_datetime(constants.HISTORICAL_START_DATE - datetime.timedelta(days = 1)),
         constants.ACTION: constants.HOLD,
         constants.RECOMMENDATION: constants.HOLD,
         constants.CASH_BALANCE: constants.HISTORICAL_STARTING_CASH_BALANCE,
