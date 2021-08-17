@@ -8,7 +8,6 @@ from jobs import marketday
 from models import model
 from web import webcontext
 
-
 #########################################################
 # Use this if you want to connect to a local datastore  #
 #
@@ -33,18 +32,14 @@ from web import webcontext
 #         project="test"
 #     )
 ############################################################
-
 datastore_client = datastore.Client()
 app = Flask(__name__)
-
 
 @app.route('/')
 def root():
     # Get the web context for the date requested
     requested_date = request.args.get('date', default = utility.get_yesterday(), type = utility.to_date)
-
     print('Web | Requested Date:', requested_date)
-
     context = webcontext.build_bot_summary_context_by_day(datastore_client, requested_date)
 
     return render_template('index.html', context=context)
@@ -65,8 +60,6 @@ def cron_run_daily_model_updates():
     print('Completed Cron for Daily Model Updates')
 
     return results
-
-
 
 if __name__ == "__main__":
     # This is used when running locally only. When deploying to Google App

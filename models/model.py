@@ -221,14 +221,14 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
             constants.RECOMMENDATION: recommendation_value,
             constants.CASH_BALANCE: cash_balance,
             constants.BTC_BALANCE: btc_balance,
-            constants.AVG_DAYS_HOLDING_BTC: get_average_from_list(list_consecutive_days_holding_btc),
-            constants.AVG_DAYS_HOLDING_CASH: get_average_from_list(list_consecutive_days_holding_cash),
+            constants.AVG_DAYS_HOLDING_BTC: utility.calculate_average_from_list(list_consecutive_days_holding_btc),
+            constants.AVG_DAYS_HOLDING_CASH: utility.calculate_average_from_list(list_consecutive_days_holding_cash),
             constants.TOTAL_DAYS_HOLDING_CASH: sum(list_consecutive_days_holding_cash),
             constants.TOTAL_DAYS_HOLDING_BTC: sum(list_consecutive_days_holding_btc),
-            constants.AVG_RETURN_ON_BUYS: get_average_from_list(list_returns_per_buy),
-            constants.AVG_RETURN_ON_SELLS: get_average_from_list(list_returns_per_sell),
+            constants.AVG_RETURN_ON_BUYS: utility.calculate_average_from_list(list_returns_per_buy),
+            constants.AVG_RETURN_ON_SELLS: utility.calculate_average_from_list(list_returns_per_sell),
             constants.NET_PROFIT_IN_CASH: final_balance_in_cash - constants.HISTORICAL_STARTING_CASH_BALANCE,
-            constants.AVG_RETURN_PER_TRANSACTION: get_average_from_list(list_returns_per_buy + list_returns_per_sell),
+            constants.AVG_RETURN_PER_TRANSACTION: utility.calculate_average_from_list(list_returns_per_buy + list_returns_per_sell),
             constants.TOTAL_RETURN: utility.get_rate_of_return(final_balance_in_cash, constants.HISTORICAL_STARTING_CASH_BALANCE),
             constants.PREVIOUS_TRANSACTION_CLOSE_PRICE: previous_transaction_close_price,
             constants.CONSECUTIVE_DAYS_HOLDING_CASH: consecutive_days_holding_cash,
@@ -287,10 +287,3 @@ def populate_default_model():
     }
 
     return dictionary
-
-def get_average_from_list(list_of_days):
-    if sum(list_of_days) == 0:
-        average = 0
-    else:
-        average = sum(list_of_days) / len(list_of_days)
-    return average

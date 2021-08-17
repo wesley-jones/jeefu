@@ -33,6 +33,10 @@ body {
   margin: 0;
 }
 
+.fine-print {
+  font-size: 0.85em;
+}
+
 .inline {
   margin: 0;
   display: inline-block;
@@ -76,7 +80,6 @@ body {
   padding: 20px;
 }
 
-
 /* Responsive layout - when the screen is less than 700px wide, make the two columns stack on top of each other instead of next to each other */
 @media screen and (max-width: 700px) {
   .row {   
@@ -99,6 +102,13 @@ body {
 /* Add some padding inside the card container */
 .container {
   padding: 2px 16px;
+}
+
+#logo {
+	position: absolute; 
+  background-color: #f1f1f1;
+	top: 0; 
+	left: 0;
 }
 
 /* Float four columns side by side */
@@ -145,6 +155,16 @@ a:hover {
 
 .round {
   border-radius: 50%;
+}
+
+/* Dashed border */
+hr.dashed {
+  border-top: 3px dashed #bbb;
+}
+
+/* Dotted border */
+hr.dotted {
+  border-top: 3px dotted #bbb;
 }
 
 /* Responsive columns - one column layout (vertical) on small screens */

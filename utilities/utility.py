@@ -22,6 +22,13 @@ def get_most_recent_entity(datastore_client, kind):
 
   return most_recent
 
+def get_first_entity(datastore_client, kind):
+  query = datastore_client.query(kind=kind)
+  query.order = [constants.QUERY_ORDER_DATE_ASCENDING]
+  first_entity = query.fetch(limit=1)
+
+  return first_entity
+
 def get_entities_starting_from(datastore_client, kind, start_date):
 
     if isinstance(start_date, datetime.date):
@@ -95,3 +102,10 @@ def pluralize(word, length):
         word = word + 's'
     
     return word
+
+def calculate_average_from_list(list_of_days):
+    if sum(list_of_days) == 0:
+        average = 0
+    else:
+        average = sum(list_of_days) / len(list_of_days)
+    return average

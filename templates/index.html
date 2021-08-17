@@ -17,118 +17,149 @@
     <h1 class="inline">{{context.date}}</h1>
     <a href="/?date={{context.next_date}}" class="next round">&#8250;</a>
   </div>
-
-<div class="row">
-  <div class="side">
-    <h2>BTC {% if context.market_day.Close is defined %}
-      ${{ "{:,.2f}".format(context.market_day.Close) }}
-      {% else %}
-      --
-      {% endif %}
-    </h2>
-    <strong>Volume: {% if context.market_day.Volume is defined %}
-      {{ "{:,.0f}".format(context.market_day.Volume) }}
-      {% else %}
-      --
-      {% endif %}
-    </strong><br>
-    <strong>High: {% if context.market_day.High is defined %}
-      {{ "{:,.0f}".format(context.market_day.High) }}
-      {% else %}
-      --
-      {% endif %}
-    </strong><br>
-    <strong>Low: {% if context.market_day.Low is defined %}
-      {{ "{:,.0f}".format(context.market_day.Low) }}
-      {% else %}
-      --
-      {% endif %}
-    </strong><br>
+  <div id="logo"> 
+    <a href="/">Jeefu</a>
   </div>
-  <div class="main">
-    <h2>The Team</h2>
-    <div class="card-row">
-      {% for model in context.models %}
-      {% set model = model[0] %}
-      <div class="column">
-        <div class="card">
-          <img src="https://www.w3schools.com/howto/img_avatar2.png" alt="Avatar" style="width:100%">
-          <div class="container">
-            <br>
-            <b>{{ model.kind }}</b>
-            <div>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star"></span>
+  <div class="row">
+    <div class="side">
+      <h2>BTC {% if context.market_day.Close is defined %}
+        ${{ "{:,.2f}".format(context.market_day.Close) }}
+        {% else %}
+        --
+        {% endif %}
+      </h2>
+      Low: {% if context.market_day.Low is defined %}
+        {{ "${:,.2f}".format(context.market_day.Low) }}
+        {% else %}
+        --
+        {% endif %}
+      <br>
+      High: {% if context.market_day.High is defined %}
+        {{ "${:,.2f}".format(context.market_day.High) }}
+        {% else %}
+        --
+        {% endif %}
+      <br>
+      Volume: {% if context.market_day.Volume is defined %}
+        {{ "{:,.0f}".format(context.market_day.Volume) }}
+        {% else %}
+        --
+        {% endif %}
+      <br>
+    </div>
+    <div class="main">
+      <h2>The Team</h2>
+      <div class="card-row">
+        {% for model in context.models %}
+        <div class="column">
+          <div class="card">
+            <img src="{{ model.image_url }}" alt="Bot" style="width:100%">
+            <div class="container">
+              <br>
+              <b>{{ model.alias }}</b>
+              <div>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star"></span>
+              </div>
+              <p><u>Recommendation: {{ model.recommendation }}</u></p>
+              <p>Net Profit: <strong>{{ model.net_profit }}</strong></p>
+              <p>Return: <strong>{{ model.total_return }}</strong></p>
+              <p>Duration: <strong>{{ model.duration }}</strong></p>
+              <hr class="dotted">
+              <div class="fine-print">
+                <p>Total Balance<br>
+                  <strong>
+                    {{ model.balance_as_cash }} ({{ model.balance_as_btc }})
+                  </strong>
+                </p>
+                <p>Cash Balance<br>
+                  <strong>{{ model.cash_balance }} </strong>
+                </p>
+                <p>BTC Balance<br>
+                  <strong>{{ model.btc_balance }}</strong>
+                </p>
+                <p>
+                  Days Holding Cash<br>
+                  <strong>{{ model.days_holding_cash }} (Avg: {{ model.avg_days_holding_cash }})</strong>
+                </p>
+                <p>
+                  Days Holding BTC<br>
+                  <strong>{{ model.days_holding_btc }} (Avg: {{ model.avg_days_holding_btc }})</strong>
+                </p>
+                <p>
+                  Avg Return per Buy<br>
+                  <strong>{{ model.avg_return_on_buys }}</strong>
+                </p>
+                <p>
+                  Avg Return per Sell<br>
+                  <strong>{{ model.avg_return_on_sells }}</strong>
+                </p>
+                <p>
+                  Days since last tranasction<br>
+                  <strong>{{ model.days_since_transaction }}</strong>
+                </p>
+                <br>
+              </div>
             </div>
-            <p><u>Recommendation: {{ model.Recommendation }}</u></p>
-            <p>Total Return: {{ "{:,.0f}".format(model['Total Return']) }}%</p>
-            <p>Total Balance as Cash: ${{ "{}".format(model['']) }}</p>
-            <p>Total Balance as BTC: 1.0</p>
-            <p>Avg Days Holding Cash: 42</p>
-            <p>Avg Days Holding BTC: 84</p>
-            <p>Avg Return per Buy: 33%</p>
-            <p>Avg Return per Sell: 50%</p>
-            <br>
           </div>
         </div>
-      </div>
-      {% endfor %}
-      <div class="column">
-        <div class="card">
-          <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" style="width:100%">
-          <div class="container">
-            <br>
-            <b>Mr. Hindsight</b>
-            <div>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
+        {% endfor %}
+        <div class="column">
+          <div class="card">
+            <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" style="width:100%">
+            <div class="container">
+              <br>
+              <b>Mr. Hindsight</b>
+              <div>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+              </div>
+              <p><u>Recommendation: Hold</u></p>
+              <p>Total Return: 42%</p>
+              <p>Total Balance as Cash: $40,234</p>
+              <p>Total Balance as BTC: 1.0</p>
+              <p>Avg Days Holding Cash: 42</p>
+              <p>Avg Days Holding BTC: 84</p>
+              <p>Avg Return per Buy: 33%</p>
+              <p>Avg Return per Sell: 50%</p>
+              <br>
             </div>
-            <p><u>Recommendation: Hold</u></p>
-            <p>Total Return: 42%</p>
-            <p>Total Balance as Cash: $40,234</p>
-            <p>Total Balance as BTC: 1.0</p>
-            <p>Avg Days Holding Cash: 42</p>
-            <p>Avg Days Holding BTC: 84</p>
-            <p>Avg Return per Buy: 33%</p>
-            <p>Avg Return per Sell: 50%</p>
-            <br>
           </div>
         </div>
-      </div>
-      <div class="column">
-        <div class="card">
-          <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" style="width:100%">
-          <div class="container">
-            <br>
-            <b>The Amateur</b>
-            <div>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star"></span>
-              <span class="fa fa-star"></span>
-              <span class="fa fa-star"></span>
+        <div class="column">
+          <div class="card">
+            <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" style="width:100%">
+            <div class="container">
+              <br>
+              <b>The Amateur</b>
+              <div>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+              </div>
+              <p><u>Recommendation: Hold</u></p>
+              <p>Total Return: 42%</p>
+              <p>Total Balance as Cash: $40,234</p>
+              <p>Total Balance as BTC: 1.0</p>
+              <p>Avg Days Holding Cash: 42</p>
+              <p>Avg Days Holding BTC: 84</p>
+              <p>Avg Return per Buy: 33%</p>
+              <p>Avg Return per Sell: 50%</p>
+              <br>
             </div>
-            <p><u>Recommendation: Hold</u></p>
-            <p>Total Return: 42%</p>
-            <p>Total Balance as Cash: $40,234</p>
-            <p>Total Balance as BTC: 1.0</p>
-            <p>Avg Days Holding Cash: 42</p>
-            <p>Avg Days Holding BTC: 84</p>
-            <p>Avg Return per Buy: 33%</p>
-            <p>Avg Return per Sell: 50%</p>
-            <br>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
 </body>
 </html>

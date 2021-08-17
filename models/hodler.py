@@ -6,6 +6,8 @@ import pytz
 from utilities import utility, constants
 
 kind = 'Hodler'
+alias = 'The Hodler'
+image_url = 'https://www.w3schools.com/howto/img_avatar2.png'
 
 def get_recommendations(datastore_client, start_date):
     loop_date = start_date
