@@ -42,7 +42,7 @@ def run_daily_market_summary_update(datastore_client):
         return "Updated datastore market days starting from " + start_date.strftime('%m/%d/%Y')
 
     else:
-        return "Datastore is update-to-date!"
+        return "Market Day Summaries are update-to-date!"
 
 def add_missing_yahoo_data(start_date):
     dictionaries = []

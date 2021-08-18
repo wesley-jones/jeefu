@@ -14,6 +14,7 @@ def build_bot_summary_context_by_day(datastore_client, requested_date):
     if market_day:
         market_day = market_day[0]
         model_list = []
+
         for active_model in model.active_model_list:
             entity = utility.get_entity_by_date(datastore_client, active_model.kind, requested_date)
             entity = list(entity)
@@ -42,13 +43,15 @@ def build_bot_summary_context_by_day(datastore_client, requested_date):
                     
                     list_days_holding_btc = entity[constants.LIST_CONSECUTIVE_DAYS_HOLDING_BTC]
                     list_days_holding_btc.append(entity[constants.CONSECUTIVE_DAYS_HOLDING_BTC])
+                    total_return = utility.get_rate_of_return(balance_as_cash, constants.HISTORICAL_STARTING_CASH_BALANCE)
 
                     dictionary = {
                         'alias': active_model.alias,
                         'image_url': active_model.image_url,
                         'recommendation': entity[constants.RECOMMENDATION],
                         'net_profit': f'${balance_as_cash - constants.HISTORICAL_STARTING_CASH_BALANCE:,.2f}',
-                        'total_return': f'{utility.get_rate_of_return(balance_as_cash, constants.HISTORICAL_STARTING_CASH_BALANCE):,.0f}%',
+                        'total_return_float': total_return,
+                        'total_return': f'{total_return:,.0f}%',
                         'duration': f'{(market_day[constants.DATE] - first_entity[constants.DATE]).days:,.0f} days',
                         'starting_balance': f'${constants.HISTORICAL_STARTING_CASH_BALANCE:,.2f}',
                         'balance_as_cash': f'${balance_as_cash:,.2f}',
@@ -65,6 +68,16 @@ def build_bot_summary_context_by_day(datastore_client, requested_date):
                     }
                     model_list.append(dictionary)
 
+        # Populate the review stars
+        list_returns = [a_dict['total_return_float'] for a_dict in model_list]
+        list_returns.sort()
+        star_count = 5
+        for r in list_returns:
+            for m in model_list:
+                if m['total_return_float'] == r:
+                    m['star_count'] = star_count
+                    if star_count > 1:
+                        star_count -= 1
     else:
         market_day = {}
 

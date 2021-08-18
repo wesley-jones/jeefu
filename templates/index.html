@@ -58,11 +58,12 @@
               <br>
               <b>{{ model.alias }}</b>
               <div>
-                <span class="fa fa-star checked"></span>
-                <span class="fa fa-star checked"></span>
-                <span class="fa fa-star checked"></span>
-                <span class="fa fa-star checked"></span>
-                <span class="fa fa-star"></span>
+                {% for count in range(model.star_count) %}
+                  <span class="fa fa-star checked"></span>
+                {% endfor %}
+                {% for count in range(5 - model.star_count) %}
+                  <span class="fa fa-star"></span>
+                {% endfor %}
               </div>
               <p><u>Recommendation: {{ model.recommendation }}</u></p>
               <p>Net Profit: <strong>{{ model.net_profit }}</strong></p>
