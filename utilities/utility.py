@@ -104,8 +104,12 @@ def pluralize(word, length):
     return word
 
 def calculate_average_from_list(list_of_days):
-    if sum(list_of_days) == 0:
-        average = 0
+    if list_of_days:
+        if sum(list_of_days) == 0:
+            average = 0
+        else:
+            average = sum(list_of_days) / len(list_of_days)
     else:
-        average = sum(list_of_days) / len(list_of_days)
+        average = 0
+
     return average
