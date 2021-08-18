@@ -70,7 +70,7 @@ def build_bot_summary_context_by_day(datastore_client, requested_date):
 
         # Populate the review stars
         list_returns = [a_dict['total_return_float'] for a_dict in model_list]
-        list_returns.sort()
+        list_returns.sort(reverse=True)
         star_count = 5
         for r in list_returns:
             for m in model_list:
