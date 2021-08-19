@@ -46,6 +46,8 @@
         --
         {% endif %}
       <br>
+      <hr class="dotted">
+      <small>Each team member starts with $457</small>
     </div>
     <div class="main">
       <h2>The Team</h2>
@@ -56,7 +58,8 @@
             <img src="{{ model.image_url }}" alt="Bot" style="width:100%">
             <div class="container">
               <br>
-              <b>{{ model.alias }}</b>
+              <b>{{ model.alias }}</b><br>
+              <small>{{ model.description }}</small>
               <div>
                 {% for count in range(model.star_count) %}
                   <span class="fa fa-star checked"></span>
@@ -83,12 +86,20 @@
                   <strong>{{ model.btc_balance }}</strong>
                 </p>
                 <p>
-                  Days Holding Cash<br>
-                  <strong>{{ model.days_holding_cash }} (Avg: {{ model.avg_days_holding_cash }})</strong>
+                  Total Days Holding Cash<br>
+                  <strong>{{ model.days_holding_cash }} days ({{ model.percent_days_holding_cash }})</strong>
                 </p>
                 <p>
-                  Days Holding BTC<br>
-                  <strong>{{ model.days_holding_btc }} (Avg: {{ model.avg_days_holding_btc }})</strong>
+                  Total Days Holding BTC<br>
+                  <strong>{{ model.days_holding_btc }} days ({{ model.percent_days_holding_btc }})</strong>
+                </p>
+                <p>
+                  Avg Consecutive Days Holding Cash<br>
+                  <strong>{{ model.avg_days_holding_cash }} days</strong>
+                </p>
+                <p>
+                  Avg Consecutive Days Holding BTC<br>
+                  <strong>{{ model.avg_days_holding_btc }} days</strong>
                 </p>
                 <p>
                   Avg Return per Buy<br>
@@ -97,6 +108,10 @@
                 <p>
                   Avg Return per Sell<br>
                   <strong>{{ model.avg_return_on_sells }}</strong>
+                </p>
+                <p>
+                  Total Number of Transactions<br>
+                  <strong>{{ model.number_of_transactions }}</strong>
                 </p>
                 <p>
                   Days since last tranasction<br>

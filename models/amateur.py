@@ -1,32 +1,16 @@
-# The amateur makes similar decisions to me!!
+# The Amateur oddly similar to myself
 
-from google.cloud import datastore
 import datetime
-import pytz
-from utilities import utility, constants
+from models import base
 
 kind = 'Amateur'
-alias = 'The Amateur'
+alias = 'Mr. Jeefu'
+description = 'I am an amateur'
 image_url = 'https://www.w3schools.com/howto/img_avatar.png'
+simulation_file = 'models/data/simulation_amateur.csv'
+simulation_file_end_date = datetime.datetime(2021, 7, 25).date()
+one_day = datetime.timedelta(days = 1)
 
 def get_recommendations(datastore_client, start_date):
-    loop_date = start_date
-
-    recommendations = []
-    one_day = datetime.timedelta(days = 1)
-
-    while loop_date < utility.get_today():
-        if loop_date == constants.HISTORICAL_START_DATE:
-            recommendation = constants.BUY
-        else:
-            recommendation = constants.HOLD
-
-        dictionary = {
-            constants.DATE: loop_date,
-            constants.RECOMMENDATION: recommendation
-        }
-        recommendations.append(dictionary)
-        loop_date += one_day
-
+    recommendations = base.get_base_recommendations(datastore_client, kind, start_date, simulation_file, simulation_file_end_date)
     return recommendations
-

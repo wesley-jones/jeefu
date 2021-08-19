@@ -1,6 +1,6 @@
 import datetime
 from utilities import utility, constants
-from models import hodler, hindsight
+from models import hodler, hindsight, amateur
 from jobs import marketday
 
 
@@ -8,6 +8,10 @@ from jobs import marketday
 Every model should implement the following variables:
     kind
         the google store entity name
+    alias
+        the name shown on the website
+    image_url
+        the avatar shown on the website
 
 Every model should implement the following functions:
     get_recommendations(datastore_client, data)
@@ -23,7 +27,8 @@ Every model should implement the following functions:
 
 active_model_list = {
     hodler,
-    hindsight
+    hindsight,
+    amateur
 }
 
 def run_daily_model_updates(datastore_client):
