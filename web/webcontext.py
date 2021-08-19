@@ -2,6 +2,7 @@ from utilities import utility, constants
 from jobs import marketday
 import datetime
 from models import model
+from dateutil.relativedelta import relativedelta
 
 
 one_day = datetime.timedelta(days = 1)
@@ -44,6 +45,8 @@ def build_bot_summary_context_by_day(datastore_client, requested_date):
                     list_days_holding_btc.append(entity[constants.CONSECUTIVE_DAYS_HOLDING_BTC])
                     total_return = utility.get_rate_of_return(balance_as_cash, constants.HISTORICAL_STARTING_CASH_BALANCE)
                     duration = (market_day[constants.DATE] - first_entity[constants.DATE]).days
+                    duration_in_years = relativedelta(market_day[constants.DATE], first_entity[constants.DATE]).years
+                    duration_of_months = relativedelta(market_day[constants.DATE], first_entity[constants.DATE]).months
                     days_holding_cash = sum(list_days_holding_cash) if list_days_holding_cash else 0
                     days_holding_btc = sum(list_days_holding_btc) if list_days_holding_btc else 0
 
@@ -55,7 +58,7 @@ def build_bot_summary_context_by_day(datastore_client, requested_date):
                         'net_profit': f'${balance_as_cash - constants.HISTORICAL_STARTING_CASH_BALANCE:,.2f}',
                         'total_return_float': total_return,
                         'total_return': f'{total_return:,.0f}%',
-                        'duration': f'{duration:,.0f} days',
+                        'duration': f'{duration_in_years:,.0f}yrs {duration_of_months}mon',
                         'starting_balance': f'${constants.HISTORICAL_STARTING_CASH_BALANCE:,.2f}',
                         'balance_as_cash': f'${balance_as_cash:,.2f}',
                         'balance_as_btc': f'{balance_as_btc:,.1f} BTC',
