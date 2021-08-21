@@ -12,7 +12,7 @@ def get_base_recommendations(datastore_client, kind, start_date, simulation_file
     data = pd.read_csv(simulation_file)
 
     if start_date > simulation_file_end_date:
-        recommendations = set_recommendations_to_hold(start_date, recommendations)
+        set_recommendations_to_hold(start_date, recommendations)
 
     else:
         loop_date = start_date
@@ -39,7 +39,7 @@ def get_base_recommendations(datastore_client, kind, start_date, simulation_file
                 )
                 return recommendations
 
-        recommendations = set_recommendations_to_hold(loop_date, recommendations)
+        set_recommendations_to_hold(loop_date, recommendations)
 
     return recommendations
 
@@ -53,4 +53,4 @@ def set_recommendations_to_hold(start_date, recommendations):
         recommendations.append(dictionary)
         loop_date += one_day
 
-    return recommendations
+    return

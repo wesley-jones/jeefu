@@ -150,12 +150,12 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
         recommendation_value = recommendation[constants.RECOMMENDATION]
         close_price = market_day[constants.CLOSE_PRICE]
         previous_transaction_close_price = previous_day_model[constants.PREVIOUS_TRANSACTION_CLOSE_PRICE]
-        list_returns_per_buy = previous_day_model[constants.LIST_RETURNS_PER_BUY]
-        list_returns_per_sell = previous_day_model[constants.LIST_RETURNS_PER_SELL]
+        list_returns_per_buy = previous_day_model[constants.LIST_RETURNS_PER_BUY].copy()
+        list_returns_per_sell = previous_day_model[constants.LIST_RETURNS_PER_SELL].copy()
         consecutive_days_holding_cash = previous_day_model[constants.CONSECUTIVE_DAYS_HOLDING_CASH]
         consecutive_days_holding_btc = previous_day_model[constants.CONSECUTIVE_DAYS_HOLDING_BTC]
-        list_consecutive_days_holding_cash = previous_day_model[constants.LIST_CONSECUTIVE_DAYS_HOLDING_CASH]
-        list_consecutive_days_holding_btc = previous_day_model[constants.LIST_CONSECUTIVE_DAYS_HOLDING_BTC]
+        list_consecutive_days_holding_cash = previous_day_model[constants.LIST_CONSECUTIVE_DAYS_HOLDING_CASH].copy()
+        list_consecutive_days_holding_btc = previous_day_model[constants.LIST_CONSECUTIVE_DAYS_HOLDING_BTC].copy()
         rate_of_return = 0
 
         # Action = Buy
@@ -220,7 +220,7 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
                 consecutive_days_holding_btc += 1
 
         final_balance_in_cash = cash_balance + utility.convert_btc_to_cash(btc_balance, close_price)
-
+        
         dictionary = {
             constants.DATE: market_day[constants.DATE],
             constants.ACTION: action,

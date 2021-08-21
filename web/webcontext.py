@@ -40,15 +40,22 @@ def build_bot_summary_context_by_day(datastore_client, requested_date):
 
                     list_days_holding_cash = entity[constants.LIST_CONSECUTIVE_DAYS_HOLDING_CASH] 
                     list_days_holding_cash.append(entity[constants.CONSECUTIVE_DAYS_HOLDING_CASH])
-                    
                     list_days_holding_btc = entity[constants.LIST_CONSECUTIVE_DAYS_HOLDING_BTC]
                     list_days_holding_btc.append(entity[constants.CONSECUTIVE_DAYS_HOLDING_BTC])
                     total_return = utility.get_rate_of_return(balance_as_cash, constants.HISTORICAL_STARTING_CASH_BALANCE)
-                    duration = (market_day[constants.DATE] - first_entity[constants.DATE]).days
+                    duration = (market_day[constants.DATE] - first_entity[constants.DATE]).days + 1
                     duration_in_years = relativedelta(market_day[constants.DATE], first_entity[constants.DATE]).years
                     duration_of_months = relativedelta(market_day[constants.DATE], first_entity[constants.DATE]).months
                     days_holding_cash = sum(list_days_holding_cash) if list_days_holding_cash else 0
                     days_holding_btc = sum(list_days_holding_btc) if list_days_holding_btc else 0
+                    avg_return_on_sells = utility.calculate_average_from_list(entity[constants.LIST_RETURNS_PER_SELL])
+                    avg_return_on_buys = utility.calculate_average_from_list(entity[constants.LIST_RETURNS_PER_BUY])
+                    prev_trans_price = entity[constants.PREVIOUS_TRANSACTION_CLOSE_PRICE]
+
+                    if entity[constants.BTC_BALANCE] > 0:
+                        price_target = (avg_return_on_sells / 100) * prev_trans_price + prev_trans_price
+                    else:
+                        price_target = prev_trans_price / ((avg_return_on_buys / 100) + 1)
 
                     dictionary = {
                         'alias': active_model.alias,
@@ -58,22 +65,24 @@ def build_bot_summary_context_by_day(datastore_client, requested_date):
                         'net_profit': f'${balance_as_cash - constants.HISTORICAL_STARTING_CASH_BALANCE:,.2f}',
                         'total_return_float': total_return,
                         'total_return': f'{total_return:,.0f}%',
-                        'duration': f'{duration_in_years:,.0f}yrs {duration_of_months}mon',
+                        'duration': f'{duration_in_years:,.0f} {utility.pluralize("yr", duration_of_months)} {duration_of_months} {utility.pluralize("mo", duration_of_months)}',
                         'starting_balance': f'${constants.HISTORICAL_STARTING_CASH_BALANCE:,.2f}',
                         'balance_as_cash': f'${balance_as_cash:,.2f}',
                         'balance_as_btc': f'{balance_as_btc:,.1f} BTC',
                         'cash_balance': f'${entity[constants.CASH_BALANCE]:,.2f}',
                         'btc_balance': f'{entity[constants.BTC_BALANCE]:,.1f} BTC',
                         'days_holding_cash': days_holding_cash,
-                        'percent_days_holding_cash': f'{days_holding_cash / duration * 100:,.0f}%',
+                        'percent_days_holding_cash': f'{0 if duration == 0 else days_holding_cash / duration * 100:,.0f}%',
                         'days_holding_btc': days_holding_btc,
-                        'percent_days_holding_btc': f'{days_holding_btc / duration * 100:,.0f}%',
+                        'percent_days_holding_btc': f'{0 if duration == 0 else days_holding_btc / duration * 100:,.0f}%',
                         'avg_days_holding_cash': f'{ utility.calculate_average_from_list(list_days_holding_cash):,.0f}',
                         'avg_days_holding_btc': f'{ utility.calculate_average_from_list(list_days_holding_btc):,.0f}',
-                        'avg_return_on_buys': f'{utility.calculate_average_from_list(entity[constants.LIST_RETURNS_PER_BUY]):,.0f}%',
-                        'avg_return_on_sells': f'{utility.calculate_average_from_list(entity[constants.LIST_RETURNS_PER_SELL]):,.0f}%',
+                        'avg_return_on_buys': f'{avg_return_on_buys:,.0f}%',
+                        'avg_return_on_sells': f'{avg_return_on_sells:,.0f}%',
                         'number_of_transactions': len(entity[constants.LIST_RETURNS_PER_BUY]) + len(entity[constants.LIST_RETURNS_PER_SELL]),
-                        'days_since_transaction': f'{max(entity[constants.CONSECUTIVE_DAYS_HOLDING_BTC], entity[constants.CONSECUTIVE_DAYS_HOLDING_CASH]):,.0f} days'
+                        'days_since_transaction': f'{max(entity[constants.CONSECUTIVE_DAYS_HOLDING_BTC], entity[constants.CONSECUTIVE_DAYS_HOLDING_CASH]):,.0f} days',
+                        'next_transaction_type': 'Sell' if balance_as_btc > 0 else 'Buy',
+                        'price_target': f'${price_target:,.0f}'
                     }
                     model_list.append(dictionary)
 

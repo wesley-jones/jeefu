@@ -69,8 +69,13 @@
                 {% endfor %}
               </div>
               <p><u>Today's Recommendation: <strong>{{ model.recommendation }}</strong></u></p>
-              <p>Net Profit: <strong>{{ model.net_profit }}</strong></p>
+              <p>
+                Price Target: 
+                <strong>{{ model.price_target }}</strong>
+              </p>
+              <hr class="dotted">
               <p>Return: <strong>{{ model.total_return }}</strong></p>
+              <p>Net Profit: <strong>{{ model.net_profit }}</strong></p>
               <p>Duration: <strong>{{ model.duration }}</strong></p>
               <hr class="dotted">
               <div class="fine-print">
@@ -117,7 +122,6 @@
                   Days since last tranasction<br>
                   <strong>{{ model.days_since_transaction }}</strong>
                 </p>
-                <br>
               </div>
             </div>
           </div>
