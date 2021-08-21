@@ -53,7 +53,7 @@ def build_bot_summary_context_by_day(datastore_client, requested_date):
                     prev_trans_price = entity[constants.PREVIOUS_TRANSACTION_CLOSE_PRICE]
 
                     if entity[constants.BTC_BALANCE] > 0:
-                        price_target = (avg_return_on_sells / 100) * prev_trans_price + prev_trans_price
+                        price_target = 250000 if avg_return_on_sells == 0 else (avg_return_on_sells / 100) * prev_trans_price + prev_trans_price
                     else:
                         price_target = prev_trans_price / ((avg_return_on_buys / 100) + 1)
 
@@ -62,7 +62,7 @@ def build_bot_summary_context_by_day(datastore_client, requested_date):
                         'description': active_model.description,
                         'image_url': active_model.image_url,
                         'recommendation': entity[constants.RECOMMENDATION],
-                        'net_profit': f'${balance_as_cash - constants.HISTORICAL_STARTING_CASH_BALANCE:,.2f}',
+                        'net_profit': f'${balance_as_cash - constants.HISTORICAL_STARTING_CASH_BALANCE:,.0f}',
                         'total_return_float': total_return,
                         'total_return': f'{total_return:,.0f}%',
                         'duration': f'{duration_in_years:,.0f} {utility.pluralize("yr", duration_of_months)} {duration_of_months} {utility.pluralize("mo", duration_of_months)}',

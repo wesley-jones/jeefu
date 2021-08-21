@@ -8,7 +8,7 @@ alias = 'Mr. Jeefu'
 description = 'I am an amateur'
 image_url = 'https://www.w3schools.com/howto/img_avatar.png'
 simulation_file = 'models/data/simulation_amateur.csv'
-simulation_file_end_date = datetime.datetime(2021, 7, 25).date()
+simulation_file_end_date = datetime.datetime(2021, 8, 20).date()
 one_day = datetime.timedelta(days = 1)
 
 def get_recommendations(datastore_client, start_date):

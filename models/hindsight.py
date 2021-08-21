@@ -8,7 +8,7 @@ alias = 'Mr. Hindsight'
 description = 'I can go back in time'
 image_url = 'https://www.w3schools.com/howto/img_avatar.png'
 simulation_file = 'models/data/simulation_3_optimal.csv'
-simulation_file_end_date = datetime.datetime(2021, 7, 9).date()
+simulation_file_end_date = datetime.datetime(2021, 8, 20).date()
 one_day = datetime.timedelta(days = 1)
 
 def get_recommendations(datastore_client, start_date):
