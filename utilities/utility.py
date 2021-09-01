@@ -15,6 +15,13 @@ def validate_cron_request(request):
 
     return
 
+def get_all_entities_by_kind(datastore_client, kind, ascending=True):
+    query = datastore_client.query(kind=kind)
+    query.order = [constants.QUERY_ORDER_DATE_ASCENDING if ascending else constants.QUERY_ORDER_DATE_DESCENDING]
+    results = query.fetch()
+    
+    return results
+
 def get_most_recent_entity(datastore_client, kind):
   query = datastore_client.query(kind=kind)
   query.order = [constants.QUERY_ORDER_DATE_DESCENDING]

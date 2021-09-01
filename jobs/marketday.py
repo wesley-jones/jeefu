@@ -1,6 +1,8 @@
 import yfinance as yahooFinance
 import datetime
 from utilities import constants, utility
+import pandas as pd
+import numpy as np
 
 kind = 'MarketDay'
 
@@ -92,3 +94,39 @@ def add_missing_yahoo_data(start_date):
         dictionaries.append(dictionary)
 
     return dictionaries
+
+def get_yahoo_data():
+    # Get BTC Historical Data from Yahoo
+    btc = yahooFinance.Ticker("BTC-USD")
+    history = btc.history(start=constants.HISTORICAL_START_DATE, end=utility.get_yesterday())
+    history.to_csv('btc_history.csv')
+
+def get_market_day_metrics(datastore_client):
+    entities = utility.get_all_entities_by_kind(datastore_client, kind)
+    df = pd.DataFrame(entities)
+
+    df['percent_change'] = df[constants.CLOSE_PRICE].pct_change()
+    df['diff'] = df[constants.CLOSE_PRICE].diff()
+    df['percent_change_abs'] = df[constants.CLOSE_PRICE].pct_change().abs()
+    df['diff_abs'] = df[constants.CLOSE_PRICE].diff().abs()
+    # print(df.head())
+
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    day_names = df[constants.DATE].dt.day_name()
+    print('Avg Percent Change:', df['percent_change'].groupby(day_names).mean().reindex(days))
+    # print('Avg Absolute Percent Change:', df['percent_change_abs'].groupby(day_names).mean().reindex(days))
+    # print('Avg Daily Price Change:', df['diff'].groupby(day_names).mean().reindex(days))
+    # print('Avg Absolute Daily Price Change:', df['diff_abs'].groupby(day_names).mean().reindex(days))
+
+    # Sums
+    # print('Sum Daily Price Change:', df['diff'].groupby(day_names).sum().reindex(days))
+    # print('Sum Absolute Daily Price Change:', df['diff_abs'].groupby(day_names).sum().reindex(days))
+
+    # print('Total Average Percentage change:',df['percent_change'].mean())
+    # print(df[['Close', 'diff', 'percent_change']])
+    
+
+if __name__ == "__main__":
+    from google.cloud import datastore
+    datastore_client = datastore.Client()
+    get_market_day_metrics(datastore_client)
