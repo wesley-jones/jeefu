@@ -6,3 +6,7 @@ cron:
 - description: "daily model updates job"
   url: /tasks/models/daily_update
   schedule: every 15 mins
+
+- description: "daily google trends job"
+  url: /tasks/gtrends
+  schedule: every 15 mins

@@ -4,12 +4,11 @@
 
 ## SETUP ##
 from datetime import datetime, timedelta, date
+from numpy import average
 from pytrends.request import TrendReq
 import time
 import pandas as pd
 from utilities import utility, constants
-
-
 
 filename = 'google_trends.pickle'
 overlap=40
@@ -24,31 +23,34 @@ def run_daily_google_trends_update(datastore_client):
 
     # If its empty, then build all the missing dates up to this week.
     if most_recent:
-        if most_recent >= utility.get_today - datetime.timedelta(days = 7):
-            most_recent = most_recent[0][constants.DATE].date()
-            print('most_recent', most_recent)
-            start_date = most_recent + datetime.timedelta(days = 1)
-        else:
-            print('Google Trends data in datastore is out of sync. You may need to delete all GoogleTrend entities and run this job again.')
-            return
+        most_recent = most_recent[0]
+        print('most_recent_date', most_recent[constants.DATE].date())
+        if most_recent[constants.DATE].date() >= utility.get_yesterday():
+            return "Google Trends are update-to-date!"
+
+        elif most_recent[constants.DATE].date() < utility.get_today() - timedelta(days = 7):
+            return 'Google Trends data in datastore is too far out of sync. You may need to delete all GoogleTrend entities and run this job again.'
     else:
         print('No Google trends in datastore. Proceeding to populate entities.')
         # Start from the beginning
-        start_date = constants.HISTORICAL_START_DATE
-        df = get_google_interest_over_time(constants.HISTORICAL_START_DATE)
-        # df = load_from_disk()
+        df = get_interest_over_time(constants.HISTORICAL_START_DATE)
         
         # Convert data to list of dictionaries
         df['Date'] = df.index
         df = df.rename(columns={'Bitcoin': 'Trend'})
         df = df.drop('isPartial', axis=1)
-        dictionaries = df.to_dict('records')    
-
+        dictionaries = df.to_dict('records')
+        most_recent = dictionaries[-1]
 
     # Do hourly API calls to generate the data for the days for this week
+    hourly_df = get_hourly_interest_over_time(most_recent)
 
-
-
+    # append hourly trend values to dictionaries
+    hourly_df = hourly_df['Bitcoin']
+    hourly_df['Date'] = pd.to_datetime(hourly_df.index)
+    hourly_df = hourly_df.rename(columns={'mean': 'Trend'})
+    hourly_dictionaries = hourly_df.to_dict('records')
+    dictionaries = dictionaries + hourly_dictionaries
 
     # Save data to google datastore
     utility.save_to_datastore(datastore_client, kind, dictionaries)
@@ -56,9 +58,7 @@ def run_daily_google_trends_update(datastore_client):
     for x in dictionaries:
         print('Added GoogleTrend for', x[constants.DATE].date())
 
-    return "Updated datastore Google Trends starting from " + start_date.strftime('%m/%d/%Y')
-
-
+    return "Updated datastore Google Trends starting from " + (most_recent[constants.DATE].date() + timedelta(days=1)).strftime('%m/%d/%Y')
 
 def save_to_disk(df):
     df.to_pickle(filename)
@@ -66,7 +66,46 @@ def save_to_disk(df):
 def load_from_disk():
     return pd.read_pickle(filename)
 
-def get_google_interest_over_time(start_date):
+def get_hourly_interest_over_time(most_recent):
+    kw_list = ["Bitcoin"]
+    pytrends = TrendReq(hl='en-US', tz=300)
+    yesterday = utility.get_yesterday()
+    start_date = most_recent['Date'].date()
+
+    df = pytrends.get_historical_interest(
+        kw_list, 
+        year_start=start_date.year, 
+        month_start=start_date.month, 
+        day_start=start_date.day, 
+        hour_start=0,
+        year_end=yesterday.year,
+        month_end=yesterday.month,
+        day_end=yesterday.day,
+        hour_end=23,
+        cat=0, 
+        geo='',
+        gprop='',
+        sleep=10
+    )
+
+    # Scale the trend values based on the most recent
+    # entity from the datastore.
+    overlap_date = utility.cast_date_to_datetime(start_date)
+    overlap_end_date = overlap_date + timedelta(days=1) - timedelta(hours=1)
+    overlap_values = df[overlap_date : overlap_end_date]
+    overlap_avg = average(overlap_values['Bitcoin'])
+    scaling = float(most_recent['Trend'] / overlap_avg)
+    df['Bitcoin'] = df['Bitcoin'] * scaling
+
+    # Parse by date and average the trend values
+    df = df.groupby([df.index.date]).agg({'Bitcoin': ['mean']})
+
+    # Remove the overlap item
+    df = df[1:]
+
+    return df
+
+def get_interest_over_time(start_date):
 
     # The maximum for a timeframe for which we get daily data is 270.
     # Therefore we could go back 269 days. However, since there might
@@ -94,7 +133,6 @@ def get_google_interest_over_time(start_date):
 
     # Create new timeframe for which we download data
     timeframe = new_date.strftime(time_fmt)+' '+old_date.strftime(time_fmt)
-    print(timeframe)
 
     counter = 1
     pytrends.build_payload(kw_list=kw_list, timeframe = timeframe)
@@ -121,7 +159,6 @@ def get_google_interest_over_time(start_date):
 
         # New timeframe
         timeframe = new_date.strftime(time_fmt)+' '+old_date.strftime(time_fmt)
-        print(timeframe)
 
         # Download data
         pytrends.build_payload(kw_list=kw_list, timeframe = timeframe)
@@ -144,17 +181,12 @@ def get_google_interest_over_time(start_date):
                 scaling = 0
 
             # Apply scaling
-            print('Scaling factor:', scaling)
             temp_df.loc[beg:end,kw]=temp_df.loc[beg:end,kw]*scaling
 
         interest_over_time_df = pd.concat([temp_df[:-2],interest_over_time_df])
         time.sleep(1)
 
     return interest_over_time_df
-
-def view_panda(filename: str):
-    data = get_data_from_file(filename)
-    print('temp_df:', data[:-2])
 
 def get_data_from_file(filename: str):
     data = pd.read_csv(filename) #, parse_dates=["date"])
@@ -192,4 +224,3 @@ if __name__ == "__main__":
     from google.cloud import datastore
     datastore_client = datastore.Client()
     run_daily_google_trends_update(datastore_client)
-

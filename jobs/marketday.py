@@ -9,10 +9,9 @@ kind = 'MarketDay'
 def run_daily_market_summary_update(datastore_client):
     # Find the latest date in the datastore
     most_recent = utility.get_most_recent_entity(datastore_client, kind)
-
-    # If its not up-to-date, then build all the missing dates up to yesterday.
     most_recent = list(most_recent)
 
+    # If its not up-to-date, then build all the missing dates up to yesterday.
     if most_recent:
         most_recent = most_recent[0][constants.DATE].date()
         print('most_recent', most_recent)
@@ -124,8 +123,7 @@ def get_market_day_metrics(datastore_client):
 
     # print('Total Average Percentage change:',df['percent_change'].mean())
     # print(df[['Close', 'diff', 'percent_change']])
-    
-
+ 
 if __name__ == "__main__":
     from google.cloud import datastore
     datastore_client = datastore.Client()

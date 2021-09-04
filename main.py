@@ -5,6 +5,7 @@ from google.cloud import datastore
 
 from utilities import utility
 from jobs import marketday
+from jobs import googletrends
 from models import model
 from web import webcontext
 
@@ -50,6 +51,14 @@ def cron_build_market_summary():
     utility.validate_cron_request(request=request)
     print('Starting Cron for Daily Market Summary')
     results = marketday.run_daily_market_summary_update(datastore_client)
+
+    return results
+
+@app.route('/tasks/gtrends')
+def cron_build_gtrends():
+    utility.validate_cron_request(request=request)
+    print('Starting Cron for Google Trends')
+    results = googletrends.run_daily_google_trends_update(datastore_client)
 
     return results
 
