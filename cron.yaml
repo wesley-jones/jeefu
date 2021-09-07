@@ -3,8 +3,8 @@ cron:
   url: /tasks/summary
   schedule: every 15 mins
 
-- description: "daily model updates job"
-  url: /tasks/models/daily_update
+- description: "daily bot updates job"
+  url: /tasks/bots/daily_update
   schedule: every 15 mins
 
 - description: "daily google trends job"

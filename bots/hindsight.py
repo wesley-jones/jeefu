@@ -1,13 +1,13 @@
 # Hindsight can go back in time!!
 
 import datetime
-from models import base
+from bots import base
 
 kind = 'Hindsight'
 alias = 'Mr. Hindsight'
 description = 'I can go back in time'
 image_url = 'https://www.w3schools.com/howto/img_avatar.png'
-simulation_file = 'models/data/simulation_3_optimal.csv'
+simulation_file = 'bots/data/simulation_3_optimal.csv'
 simulation_file_end_date = datetime.datetime(2021, 8, 20).date()
 one_day = datetime.timedelta(days = 1)
 

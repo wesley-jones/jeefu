@@ -1,4 +1,3 @@
-import datetime
 from flask import Flask, render_template, request
 
 from google.cloud import datastore
@@ -9,30 +8,7 @@ from jobs import googletrends
 from bots import bots
 from web import webcontext
 
-#########################################################
-# Use this if you want to connect to a local datastore  #
-#
-# You will need to start your emulator with the following
-# command:
-#
-# gcloud beta emulators datastore start --data-dir=. --project test --host-port "localhost:8001"
-#
-#########################################################
-# import os
-# if os.getenv('GAE_ENV', '').startswith('standard'):
-#     # production
-#     datastore_client = datastore.Client()
-# else:
-#     os.environ["DATASTORE_DATASET"] = "test"
-#     os.environ["DATASTORE_EMULATOR_HOST"] = "localhost:8001"
-#     os.environ["DATASTORE_EMULATOR_HOST_PATH"] = "localhost:8001/datastore"
-#     os.environ["DATASTORE_HOST"] = "http://localhost:8001"
-#     os.environ["DATASTORE_PROJECT_ID"] = "test"
 
-#     datastore_client = datastore.Client(
-#         project="test"
-#     )
-############################################################
 datastore_client = datastore.Client()
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile('config.py')
@@ -62,11 +38,11 @@ def cron_build_gtrends():
 
     return results
 
-@app.route('/tasks/models/daily_update')
-def cron_run_daily_model_updates():
+@app.route('/tasks/bots/daily_update')
+def cron_run_daily_bot_updates():
     utility.validate_cron_request(request=request)
     print('Starting Cron for Daily Bot Updates')
-    results = bots.run_daily_model_updates(datastore_client)
+    results = bots.run_daily_updates(datastore_client)
     print('Completed Cron for Daily Bot Updates')
 
     return results

@@ -1,11 +1,11 @@
 import datetime
 from utilities import utility, constants
-from models import hodler, hindsight, amateur
+from bots import hodler, hindsight, amateur
 from jobs import marketday
 
 
 '''
-Every model should implement the following variables:
+Every bot should implement the following variables:
     kind
         the google store entity name
     alias
@@ -13,7 +13,7 @@ Every model should implement the following variables:
     image_url
         the avatar shown on the website
 
-Every model should implement the following functions:
+Every bot should implement the following functions:
     get_recommendations(datastore_client, start_date)
         Should be list of dictionary with two fields
         Date and Recommendation
@@ -25,21 +25,21 @@ Every model should implement the following functions:
 
 '''
 
-active_model_list = {
+active_bot_list = {
     hodler,
     hindsight,
     amateur
 }
 
-def run_daily_model_updates(datastore_client):
+def run_daily_updates(datastore_client):
 
     has_error = False
 
-    # Loop through each model
-    for model in active_model_list:
+    # Loop through each bot
+    for bot in active_bot_list:
 
         # Find the latest date in the datastore
-        most_recent = utility.get_most_recent_entity(datastore_client, model.kind)
+        most_recent = utility.get_most_recent_entity(datastore_client, bot.kind)
 
         # If its not up-to-date, then build all the missing dates up to yesterday.
         most_recent = list(most_recent)
@@ -48,7 +48,7 @@ def run_daily_model_updates(datastore_client):
             most_recent = most_recent[0]['Date'].date()
             start_date = most_recent + datetime.timedelta(days = 1)
         else:
-            print('No days in datastore for entity', model.kind)
+            print('No days in datastore for entity', bot.kind)
             start_date = datetime.datetime(2014, 9, 17).date()
 
         today = utility.get_today()
@@ -56,43 +56,43 @@ def run_daily_model_updates(datastore_client):
         if start_date < today:
 
             # Get the recommendations list
-            recommendations = model.get_recommendations(datastore_client, start_date)
+            recommendations = bot.get_recommendations(datastore_client, start_date)
 
             # Make sure the dates line up
             if start_date != recommendations[0][constants.DATE]:
-                print('Start dates do not align for', model.kind)
+                print('Start dates do not align for', bot.kind)
                 recommendations = []
                 has_error = True
 
             # Calculate the daily metrics
-            dictionaries = calculate_daily_metrics(datastore_client, start_date, model, recommendations)
+            dictionaries = calculate_daily_metrics(datastore_client, start_date, bot, recommendations)
 
             print(
                 "Adding",
                 len(dictionaries),
                 utility.pluralize('record', len(dictionaries)),
                 "to",
-                model.kind
+                bot.kind
             )
             # Save to google datastore
-            utility.save_to_datastore(datastore_client, model.kind, dictionaries)
+            utility.save_to_datastore(datastore_client, bot.kind, dictionaries)
 
         else:
-            print(model.kind, 'is up-to-date!')
+            print(bot.kind, 'is up-to-date!')
 
     # End for loop
 
-    return "Daily Model Updates have finished with errors" if has_error else "Daily Model Updates have finished"
+    return "Daily Bot Updates have finished with errors" if has_error else "Daily Bot Updates have finished"
 
 # Returns a list of dictionaries
-def calculate_daily_metrics(datastore_client, start_date, model, recommendations):
+def calculate_daily_metrics(datastore_client, start_date, bot, recommendations):
 
-    # Get the latest data in the model's datastore
-    most_recent = utility.get_most_recent_entity(datastore_client, model.kind)
+    # Get the latest data in the bot's datastore
+    most_recent = utility.get_most_recent_entity(datastore_client, bot.kind)
 
     most_recent = list(most_recent)
 
-    # Previous days already exist for this model
+    # Previous days already exist for this bot
     if most_recent:
         most_recent = most_recent[0]
         if most_recent[constants.DATE].date() != start_date - datetime.timedelta(days = 1):
@@ -102,16 +102,16 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
                 "doesn't match with the day before the first recommendation date",
                 start_date - datetime.timedelta(days = 1),
                 "for",
-                model.kind
+                bot.kind
             )
             return []
 
-        previous_day_model = most_recent
+        previous_day_bot = most_recent
 
-    # First time this model has ran
+    # First time this Bot has ran
     else:
         cash_balance = constants.HISTORICAL_STARTING_CASH_BALANCE
-        previous_day_model = populate_default_model()
+        previous_day_bot = populate_default_bot()
 
     market_days = utility.get_entities_starting_from(datastore_client, marketday.kind, start_date)
 
@@ -123,17 +123,17 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
         try:
             market_day = next(market_days)
         except StopIteration as e:
-            print('Mismatch with market days and recommendations for', model.kind)
+            print('Mismatch with market days and recommendations for', bot.kind)
             return dictionaries
 
-        verify_previous_model_date = (previous_day_model[constants.DATE] + datetime.timedelta(days = 1)).date()
+        verify_previous_bot_date = (previous_day_bot[constants.DATE] + datetime.timedelta(days = 1)).date()
         if (
             recommendation[constants.DATE] != market_day[constants.DATE].date()
-            or verify_previous_model_date != market_day[constants.DATE].date()
+            or verify_previous_bot_date != market_day[constants.DATE].date()
         ):
             print(
                 'Mismatch with dates for', 
-                model.kind,
+                bot.kind,
                 "\n",
                 "Recommendation:",
                 recommendation[constants.DATE],
@@ -141,24 +141,24 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
                 "Market day:",
                 market_day[constants.DATE].date(),
                 "\n",
-                "Previous model date:",
-                verify_previous_model_date
+                "Previous bot date:",
+                verify_previous_bot_date
             )
             return dictionaries
 
         # Reset the variables
         action = ''
-        cash_balance = previous_day_model[constants.CASH_BALANCE]
-        btc_balance = previous_day_model[constants.BTC_BALANCE]
+        cash_balance = previous_day_bot[constants.CASH_BALANCE]
+        btc_balance = previous_day_bot[constants.BTC_BALANCE]
         recommendation_value = recommendation[constants.RECOMMENDATION]
         close_price = market_day[constants.CLOSE_PRICE]
-        previous_transaction_close_price = previous_day_model[constants.PREVIOUS_TRANSACTION_CLOSE_PRICE]
-        list_returns_per_buy = previous_day_model[constants.LIST_RETURNS_PER_BUY].copy()
-        list_returns_per_sell = previous_day_model[constants.LIST_RETURNS_PER_SELL].copy()
-        consecutive_days_holding_cash = previous_day_model[constants.CONSECUTIVE_DAYS_HOLDING_CASH]
-        consecutive_days_holding_btc = previous_day_model[constants.CONSECUTIVE_DAYS_HOLDING_BTC]
-        list_consecutive_days_holding_cash = previous_day_model[constants.LIST_CONSECUTIVE_DAYS_HOLDING_CASH].copy()
-        list_consecutive_days_holding_btc = previous_day_model[constants.LIST_CONSECUTIVE_DAYS_HOLDING_BTC].copy()
+        previous_transaction_close_price = previous_day_bot[constants.PREVIOUS_TRANSACTION_CLOSE_PRICE]
+        list_returns_per_buy = previous_day_bot[constants.LIST_RETURNS_PER_BUY].copy()
+        list_returns_per_sell = previous_day_bot[constants.LIST_RETURNS_PER_SELL].copy()
+        consecutive_days_holding_cash = previous_day_bot[constants.CONSECUTIVE_DAYS_HOLDING_CASH]
+        consecutive_days_holding_btc = previous_day_bot[constants.CONSECUTIVE_DAYS_HOLDING_BTC]
+        list_consecutive_days_holding_cash = previous_day_bot[constants.LIST_CONSECUTIVE_DAYS_HOLDING_CASH].copy()
+        list_consecutive_days_holding_btc = previous_day_bot[constants.LIST_CONSECUTIVE_DAYS_HOLDING_BTC].copy()
         rate_of_return = 0
 
         # Action = Buy
@@ -171,7 +171,7 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
                 list_returns_per_buy.append(rate_of_return)
 
             log_transaction(
-                model = model,
+                bot = bot,
                 date = recommendation[constants.DATE],
                 transaction_type = constants.BUY,
                 rate_of_return = rate_of_return,
@@ -197,7 +197,7 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
                 list_returns_per_sell.append(rate_of_return)
 
             log_transaction(
-                model = model,
+                bot = bot,
                 date=recommendation[constants.DATE],
                 transaction_type=constants.SELL,
                 rate_of_return=rate_of_return,
@@ -240,14 +240,14 @@ def calculate_daily_metrics(datastore_client, start_date, model, recommendations
         }
 
         dictionaries.append(dictionary)
-        previous_day_model = dictionary
+        previous_day_bot = dictionary
         
     return dictionaries
 
-def log_transaction(model, date, transaction_type, rate_of_return, btc_amount, cash_amount, close_price):
+def log_transaction(bot, date, transaction_type, rate_of_return, btc_amount, cash_amount, close_price):
     print(
         'Transaction for',
-        model.kind,
+        bot.kind,
         '|',
         date,
         '|',
@@ -261,7 +261,7 @@ def log_transaction(model, date, transaction_type, rate_of_return, btc_amount, c
         f'Close price: ${close_price:,.0f}'
     )
 
-def populate_default_model():
+def populate_default_bot():
     dictionary = {
         constants.DATE: utility.cast_date_to_datetime(constants.HISTORICAL_START_DATE - datetime.timedelta(days = 1)),
         constants.ACTION: constants.HOLD,

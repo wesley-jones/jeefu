@@ -1,7 +1,7 @@
 from utilities import utility, constants
 from jobs import marketday
 import datetime
-from models import model
+from bots import bots
 from dateutil.relativedelta import relativedelta
 
 
@@ -10,23 +10,23 @@ one_day = datetime.timedelta(days = 1)
 def build_bot_summary_context_by_day(datastore_client, requested_date):
     market_day = utility.get_entity_by_date(datastore_client, marketday.kind, requested_date)
     market_day = list(market_day)
-    model_list = []
+    bot_list = []
 
     if market_day:
         market_day = market_day[0]
 
-        for active_model in model.active_model_list:
-            entity = utility.get_entity_by_date(datastore_client, active_model.kind, requested_date)
+        for active_bot in bots.active_bot_list:
+            entity = utility.get_entity_by_date(datastore_client, active_bot.kind, requested_date)
             entity = list(entity)
             if entity:
                 entity = entity[0]
                 if entity[constants.DATE].date() != requested_date:
                     print(
                         "Requested date does not match entity for",
-                        active_model.kind
+                        active_bot.kind
                     )
                 else:
-                    first_entity = list(utility.get_first_entity(datastore_client, active_model.kind))[0]
+                    first_entity = list(utility.get_first_entity(datastore_client, active_bot.kind))[0]
                     balance_as_cash = (entity[constants.CASH_BALANCE] + utility.convert_btc_to_cash(
                             entity[constants.BTC_BALANCE],
                             market_day[constants.CLOSE_PRICE]
@@ -58,9 +58,9 @@ def build_bot_summary_context_by_day(datastore_client, requested_date):
                         price_target = prev_trans_price / ((avg_return_on_buys / 100) + 1)
 
                     dictionary = {
-                        'alias': active_model.alias,
-                        'description': active_model.description,
-                        'image_url': active_model.image_url,
+                        'alias': active_bot.alias,
+                        'description': active_bot.description,
+                        'image_url': active_bot.image_url,
                         'recommendation': entity[constants.RECOMMENDATION],
                         'net_profit': f'${balance_as_cash - constants.HISTORICAL_STARTING_CASH_BALANCE:,.0f}',
                         'total_return_float': total_return,
@@ -84,14 +84,14 @@ def build_bot_summary_context_by_day(datastore_client, requested_date):
                         'next_transaction_type': 'Sell' if balance_as_btc > 0 else 'Buy',
                         'price_target': f'${price_target:,.0f}'
                     }
-                    model_list.append(dictionary)
+                    bot_list.append(dictionary)
 
         # Populate the review stars
-        list_returns = [a_dict['total_return_float'] for a_dict in model_list]
+        list_returns = [a_dict['total_return_float'] for a_dict in bot_list]
         list_returns.sort(reverse=True)
         star_count = 5
         for r in list_returns:
-            for m in model_list:
+            for m in bot_list:
                 if m['total_return_float'] == r:
                     m['star_count'] = star_count
                     if star_count > 1:
@@ -104,5 +104,5 @@ def build_bot_summary_context_by_day(datastore_client, requested_date):
         'next_date': requested_date + one_day,
         'previous_date': requested_date - one_day,
         'market_day': market_day,
-        'models': model_list
+        'bots': bot_list
     }

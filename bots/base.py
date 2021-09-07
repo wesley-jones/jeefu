@@ -1,4 +1,4 @@
-# Base model used for csv based models
+# Base bot used for csv based bots
 
 import datetime
 from utilities import utility, constants

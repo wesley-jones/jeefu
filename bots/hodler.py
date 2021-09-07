@@ -1,8 +1,6 @@
 # Hodlers Never Sell!!
 
-from google.cloud import datastore
 import datetime
-import pytz
 from utilities import utility, constants
 
 kind = 'Hodler'

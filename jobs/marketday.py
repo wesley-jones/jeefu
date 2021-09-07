@@ -2,7 +2,6 @@ import yfinance as yahooFinance
 import datetime
 from utilities import constants, utility
 import pandas as pd
-import numpy as np
 
 kind = 'MarketDay'
 

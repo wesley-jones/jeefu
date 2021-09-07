@@ -52,79 +52,79 @@
     <div class="main">
       <h2>The Team</h2>
       <div class="card-row">
-        {% for model in context.models %}
+        {% for bot in context.bots %}
         <div class="column">
           <div class="card">
-            <img src="{{ model.image_url }}" alt="Bot" style="width:100%">
+            <img src="{{ bot.image_url }}" alt="Bot" style="width:100%">
             <div class="container">
               <br>
-              <b>{{ model.alias }}</b><br>
-              <small>{{ model.description }}</small>
+              <b>{{ bot.alias }}</b><br>
+              <small>{{ bot.description }}</small>
               <div>
-                {% for count in range(model.star_count) %}
+                {% for count in range(bot.star_count) %}
                   <span class="fa fa-star checked"></span>
                 {% endfor %}
-                {% for count in range(5 - model.star_count) %}
+                {% for count in range(5 - bot.star_count) %}
                   <span class="fa fa-star"></span>
                 {% endfor %}
               </div>
-              <p><u>Today's Recommendation: <strong>{{ model.recommendation }}</strong></u></p>
+              <p><u>Today's Recommendation: <strong>{{ bot.recommendation }}</strong></u></p>
               <p>
                 Price Target: 
-                <strong>{{ model.price_target }}</strong>
+                <strong>{{ bot.price_target }}</strong>
               </p>
               <hr class="dotted">
               <strong>Performance</strong>
               <div class="fine-print">
-              <p>Return: <strong>{{ model.total_return }}</strong></p>
-              <p>Net Profit: <strong>{{ model.net_profit }}</strong></p>
-              <p>Duration: <strong>{{ model.duration }}</strong></p>
+              <p>Return: <strong>{{ bot.total_return }}</strong></p>
+              <p>Net Profit: <strong>{{ bot.net_profit }}</strong></p>
+              <p>Duration: <strong>{{ bot.duration }}</strong></p>
               </div>
               <hr class="dotted">
               <strong>Stats</strong>
               <div class="fine-print">
                 <p>Total Balance<br>
                   <strong>
-                    {{ model.balance_as_cash }} ({{ model.balance_as_btc }})
+                    {{ bot.balance_as_cash }} ({{ bot.balance_as_btc }})
                   </strong>
                 </p>
                 <p>Cash Balance<br>
-                  <strong>{{ model.cash_balance }} </strong>
+                  <strong>{{ bot.cash_balance }} </strong>
                 </p>
                 <p>BTC Balance<br>
-                  <strong>{{ model.btc_balance }}</strong>
+                  <strong>{{ bot.btc_balance }}</strong>
                 </p>
                 <p>
                   Total Days Holding Cash<br>
-                  <strong>{{ model.days_holding_cash }} days ({{ model.percent_days_holding_cash }})</strong>
+                  <strong>{{ bot.days_holding_cash }} days ({{ bot.percent_days_holding_cash }})</strong>
                 </p>
                 <p>
                   Total Days Holding BTC<br>
-                  <strong>{{ model.days_holding_btc }} days ({{ model.percent_days_holding_btc }})</strong>
+                  <strong>{{ bot.days_holding_btc }} days ({{ bot.percent_days_holding_btc }})</strong>
                 </p>
                 <p>
                   Avg Consecutive Days Holding Cash<br>
-                  <strong>{{ model.avg_days_holding_cash }} days</strong>
+                  <strong>{{ bot.avg_days_holding_cash }} days</strong>
                 </p>
                 <p>
                   Avg Consecutive Days Holding BTC<br>
-                  <strong>{{ model.avg_days_holding_btc }} days</strong>
+                  <strong>{{ bot.avg_days_holding_btc }} days</strong>
                 </p>
                 <p>
                   Avg Return per Buy<br>
-                  <strong>{{ model.avg_return_on_buys }}</strong>
+                  <strong>{{ bot.avg_return_on_buys }}</strong>
                 </p>
                 <p>
                   Avg Return per Sell<br>
-                  <strong>{{ model.avg_return_on_sells }}</strong>
+                  <strong>{{ bot.avg_return_on_sells }}</strong>
                 </p>
                 <p>
                   Total Number of Transactions<br>
-                  <strong>{{ model.number_of_transactions }}</strong>
+                  <strong>{{ bot.number_of_transactions }}</strong>
                 </p>
                 <p>
                   Days since last tranasction<br>
-                  <strong>{{ model.days_since_transaction }}</strong>
+                  <strong>{{ bot.days_since_transaction }}</strong>
                 </p>
               </div>
             </div>
