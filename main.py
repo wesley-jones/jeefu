@@ -6,7 +6,7 @@ from google.cloud import datastore
 from utilities import utility
 from jobs import marketday
 from jobs import googletrends
-from models import model
+from bots import bots
 from web import webcontext
 
 #########################################################
@@ -65,9 +65,9 @@ def cron_build_gtrends():
 @app.route('/tasks/models/daily_update')
 def cron_run_daily_model_updates():
     utility.validate_cron_request(request=request)
-    print('Starting Cron for Daily Model Updates')
-    results = model.run_daily_model_updates(datastore_client)
-    print('Completed Cron for Daily Model Updates')
+    print('Starting Cron for Daily Bot Updates')
+    results = bots.run_daily_model_updates(datastore_client)
+    print('Completed Cron for Daily Bot Updates')
 
     return results
 
