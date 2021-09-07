@@ -14,7 +14,7 @@ Every model should implement the following variables:
         the avatar shown on the website
 
 Every model should implement the following functions:
-    get_recommendations(datastore_client, data)
+    get_recommendations(datastore_client, start_date)
         Should be list of dictionary with two fields
         Date and Recommendation
         Example:
@@ -32,6 +32,8 @@ active_model_list = {
 }
 
 def run_daily_model_updates(datastore_client):
+
+    has_error = False
 
     # Loop through each model
     for model in active_model_list:
@@ -58,8 +60,9 @@ def run_daily_model_updates(datastore_client):
 
             # Make sure the dates line up
             if start_date != recommendations[0][constants.DATE]:
-                print('Start dates do not align for' + model.kind)
-                return []
+                print('Start dates do not align for', model.kind)
+                recommendations = []
+                has_error = True
 
             # Calculate the daily metrics
             dictionaries = calculate_daily_metrics(datastore_client, start_date, model, recommendations)
@@ -79,7 +82,7 @@ def run_daily_model_updates(datastore_client):
 
     # End for loop
 
-    return "Daily Model Updates have finished"
+    return "Daily Model Updates have finished with errors" if has_error else "Daily Model Updates have finished"
 
 # Returns a list of dictionaries
 def calculate_daily_metrics(datastore_client, start_date, model, recommendations):

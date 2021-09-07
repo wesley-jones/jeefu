@@ -1,22 +1,35 @@
-# Trained by supervised learning!!
+# Sensitive to being overpriced!!
 
 import datetime
-from models import base
-from utilities import constants
+from utilities import constants, utility
 
-kind = 'Supervised'
-alias = 'The Apprentice'
-description = 'I am taught thru supervised learning'
+kind = 'OverpricedDetector'
+alias = 'The Overpriced Detector'
+description = 'Sensitive to overpricing'
 image_url = 'https://www.w3schools.com/howto/img_avatar.png'
-# simulation_file = 'models/data/simulation_3_optimal.csv'
-# simulation_file_end_date = datetime.datetime(2021, 8, 20).date()
-one_day = datetime.timedelta(days = 1)
+filepath_of_model = 'models/data/overpriced.joblib'
 
 def get_recommendations(datastore_client, start_date):
-    # Need to call the supervised learning algorithm
+
+    pipe = load(filepath_of_model)
+    # predictions = pipe.predict(X_test)
+
+    loop_date = start_date
     recommendations = []
-    
-    
+    one_day = datetime.timedelta(days = 1)
+
+    while loop_date < utility.get_today():
+        if loop_date == constants.HISTORICAL_START_DATE:
+            recommendation = constants.BUY
+        else:
+            recommendation = constants.HOLD
+        dictionary = {
+            constants.DATE: loop_date,
+            constants.RECOMMENDATION: recommendation
+        }
+        recommendations.append(dictionary)
+        loop_date += one_day
+
     return recommendations
 
 
@@ -131,7 +144,7 @@ if __name__ == "__main__":
     # print('Data:', data)
 
     # Split data into inputs/outputs
-    X = data.loc[:, data.columns != 'Action']
+    X = data.drop(['Action'], axis=1)
     y = data['Action']
 
     # Split data into test/training
@@ -158,9 +171,8 @@ if __name__ == "__main__":
             print(input, 'has been classified as ', prediction, 'and should be ', label)
         
 
-    
-    # dump(pipe, 'SupervisedModel.joblib')
-    # pipe = load('SupervisedModel.joblib') 
+    dump(pipe, filepath_of_model)
+    # pipe = load(filepath_of_model) 
 
     # Check the model's performance
     # score = pipe.score(X_test, y_test)
@@ -183,10 +195,3 @@ if __name__ == "__main__":
 
     print('Training:', pipe.score(X_train, y_train))
     print('Testing:', pipe.score(X_test, y_test))
-
-
-
-
-    
-    
-    
