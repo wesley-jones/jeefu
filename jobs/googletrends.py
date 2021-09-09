@@ -10,7 +10,7 @@ import time
 import pandas as pd
 from utilities import utility, constants
 
-filename = 'google_trends.pickle'
+filename = 'jobs/data/google_trends.pickle'
 overlap=40
 kind = 'GoogleTrend'
 
