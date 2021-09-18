@@ -23,4 +23,4 @@ jobs:
           export_default_credentials: true
 
       - name: Use gcloud CLI
-        run: gcloud config list
+        run: gcloud app deploy
