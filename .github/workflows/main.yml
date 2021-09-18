@@ -1,17 +1,26 @@
-
-
-name: Install GCloud
+# .github/workflows/deploy.yml
+name: Deploy to Cloud Run
 on:
   push:
     branches:
       - main
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  RUN_REGION: us-east1
+  SA_KEY_JSON: ${{ secrets.GCP_SA_KEY_JSON }}
 jobs:
   deploy:
-    name: Deploy App Engine
+    name: Deploy to Cloud Run
+    runs-on: ubuntu-latest
     steps:
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@master
-      with:
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
-        export_default_credentials: true
+      - uses: actions/checkout@v2
+
+      # Setup gcloud CLI
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: "290.0.1"
+          service_account_key: ${{ secrets.GCP_SA_KEY_JSON }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Deploy
+        run: gcloud info
