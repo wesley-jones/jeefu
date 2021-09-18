@@ -23,4 +23,4 @@ jobs:
           export_default_credentials: true
 
       - name: Use gcloud CLI
-        run: gcloud info
+        run: gcloud config list
