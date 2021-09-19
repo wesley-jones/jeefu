@@ -35,3 +35,4 @@ your commits should tell a story about your changes that everyone can follow.
 * Use a brief but descriptive title.
 * Include `Relates to: #issue_number` and a short description of your changes in the
 body of the pull request.
+Do not merge the pull request. The code maintainer will review the code, request any changes, and once all requests have been completed, the code maintainer will merge the pull request.
