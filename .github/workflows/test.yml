@@ -1,16 +1,16 @@
-# .github/workflows/deploy.yml
-name: Deploy to Cloud Run
+# .github/workflows/test.yml
+name: Deploy to TEST
 on:
   push:
     branches:
       - dev
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  PROJECT_ID: ${{ secrets.GCP_TEST_PROJECT_ID }}
   RUN_REGION: us-east1
-  SA_KEY_JSON: ${{ secrets.GCP_SA_KEY_JSON }}
+  SA_KEY_JSON: ${{ secrets.GCP_TEST_SA_KEY_JSON }}
 jobs:
   deploy:
-    name: Deploy to Cloud Run
+    name: Deploy to TEST
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -22,5 +22,5 @@ jobs:
           service_account_key: ${{ secrets.GCP_TEST_SA_KEY_JSON }}
           export_default_credentials: true
 
-      - name: Use gcloud CLI
+      - name: Use gcloud CLI to deploy to TEST
         run: gcloud app deploy --quiet
