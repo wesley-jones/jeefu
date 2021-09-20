@@ -24,3 +24,6 @@ jobs:
 
       - name: Use gcloud CLI to deploy to PROD
         run: gcloud app deploy --quiet
+
+      - name: Use gcloud CLI to deploy cron jobs to PROD
+        run: gcloud app deploy cron.yaml --quiet
