@@ -84,7 +84,6 @@ url = "https://custom-search.p.rapidapi.com/api/search/CustomNewsSearchAPIV3"
 # Start date format: "2021-06-10T05:50:06"
 # Filename format: 'jobs/data/news/data_95.json'
 def get_news_from_api(start_date, filename):
-    from instance import config
 
     querystring = {
         "searchEngineId":"3530790746581235524",
@@ -95,7 +94,7 @@ def get_news_from_api(start_date, filename):
         "toPublishedDate": start_date
     }
     headers = {
-        'x-rapidapi-key': config.RAPID_API_KEY,
+        'x-rapidapi-key': utility.get_secret('RAPID_API_KEY'),
         'x-rapidapi-host': "custom-search.p.rapidapi.com"
     }
     response = requests.request("GET", url, headers=headers, params=querystring)
@@ -194,7 +193,3 @@ def loop():
 
 if __name__ == "__main__":
     group_by_day()
-    
-
-
-    

@@ -8,11 +8,6 @@ from jobs import googletrends
 from bots import bots
 from web import webcontext
 
-import os
-import json
-
-print(json.dumps({**{}, **os.environ}, indent=2))
-
 
 datastore_client = datastore.Client()
 app = Flask(__name__)

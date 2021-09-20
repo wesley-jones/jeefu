@@ -3,6 +3,7 @@ from google.cloud import datastore
 import pytz
 import datetime
 from utilities import constants
+import os
 
 timezone = pytz.timezone('America/New_York')
 
@@ -120,3 +121,25 @@ def calculate_average_from_list(list_of_days):
         average = 0
 
     return average
+
+def get_secret(secret_name):
+    # Import the Secret Manager client library.
+    from google.cloud import secretmanager
+
+    # Create the Secret Manager client.
+    client = secretmanager.SecretManagerServiceClient()
+
+    project_id = os.getenv('GOOGLE_CLOUD_PROJECT')
+    project_id = 'gcp-test-322220' if project_id == None else project_id
+
+    # Build the resource name of the secret version.
+    name = f"projects/{project_id}/secrets/{secret_name}/versions/latest"
+
+    # Access the secret version.
+    response = client.access_secret_version(request={"name": name})
+
+    # Return the secret payload.
+    #
+    # WARNING: Do not copy, store, or print the secret!
+    secret = response.payload.data.decode("UTF-8")
+    return secret

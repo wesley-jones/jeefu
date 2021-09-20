@@ -3,3 +3,4 @@ google-cloud-datastore==2.1.6
 yfinance==0.1.63
 pytest==6.2.1
 pytrends==4.7.3
+google-cloud-secret-manager==2.7.1
