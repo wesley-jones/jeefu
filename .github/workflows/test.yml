@@ -28,3 +28,6 @@ jobs:
 
       - name: Use gcloud CLI to deploy to TEST
         run: gcloud app deploy --quiet
+
+      - name: Use gcloud CLI to deploy cron jobs to TEST
+        run: gcloud app deploy cron.yaml --quiet
