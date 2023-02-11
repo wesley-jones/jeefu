@@ -14,6 +14,7 @@ filename = 'google_trends.pickle'
 overlap=40
 kind = 'GoogleTrend'
 
+
 def run_daily_google_trends_update(datastore_client):
     dictionaries = []
 
